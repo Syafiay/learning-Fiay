@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beranda Pembelajaran Digital SKI Kelas X MA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emeraldCustom: {
+                            DEFAULT: '#0F5132',
+                            dark: '#0A3622',
+                            light: '#198754',
+                            subtle: '#D1E7DD'
+                        },
+                        goldCustom: {
+                            DEFAULT: '#D4AF37',
+                            hover: '#AA820A',
+                            light: '#FFF8DC'
+                        },
+                        creamCustom: '#FAF9F5'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAF9F5;
+            color: #212529;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+        .bento-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(15, 81, 50, 0.12);
+        }
+        .tab-btn.active {
+            background-color: #D4AF37;
+            color: #0F5132;
+            font-weight: bold;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+        }
+        .accordion-content.active { max-height: 1000px; }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+        .pulse-active { animation: pulse-ring 2s infinite; }
+        .cert-border { border: 12px double #D4AF37; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-creamCustom">
+
+    <!-- ==================== OVERLAY PRESENSI & LOGIN SISWA ==================== -->
+    <div id="login-modal" class="fixed inset-0 z-[100] bg-emeraldCustom-dark/95 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300 overflow-y-auto">
+        <div class="bg-white max-w-lg w-full rounded-2xl shadow-2xl border-2 border-goldCustom overflow-hidden relative my-6">
+            
+            <button onclick="openGuruModal()" class="absolute top-3 right-3 bg-goldCustom hover:bg-goldCustom-hover text-emeraldCustom-dark px-3 py-1 rounded-full text-xs font-bold transition shadow flex items-center gap-1 z-10">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <span>Mode Guru</span>
+            </button>
+
+            <div class="bg-gradient-to-r from-emeraldCustom to-emeraldCustom-dark p-6 text-white text-center border-b-4 border-goldCustom">
+                <span class="inline-block bg-goldCustom text-emeraldCustom-dark font-bold text-[10px] uppercase px-3 py-1 rounded-full tracking-wider mb-2">Presensi Digital Harian</span>
+                <h2 class="text-xl md:text-2xl font-extrabold text-goldCustom leading-tight">Presensi Pembelajaran SKI</h2>
+                <p class="text-xs text-emerald-100 mt-1">Kelas X MA | “Dakwah Nabi Muhammad Saw. secara Sembunyi-Sembunyi”</p>
+                <p class="text-[11px] text-goldCustom/90 italic mt-0.5">Guru Pengampu: Bapak Syafii, S.Pd.I.</p>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div id="active-session-banner" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-center space-y-1">
+                    <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Sesi Presensi Aktif Hari Ini:</span>
+                    <div class="flex justify-center items-center gap-3 text-xs font-bold text-emeraldCustom-dark">
+                        <span id="session-code-display" class="bg-goldCustom/30 text-emeraldCustom-dark px-2.5 py-0.5 rounded border border-goldCustom">Kode: -</span>
+                        <span id="session-time-display">Batas: -</span>
+                        <span id="session-class-display">Kelas: -</span>
+                    </div>
+                </div>
+
+                <form id="login-form" onsubmit="handleStudentAttendance(event)" class="space-y-3">
+                    <div>
+                        <label for="nis-input" class="block text-xs font-bold text-emeraldCustom mb-1">1. Nomor Induk Siswa (NIS)</label>
+                        <input type="text" id="nis-input" placeholder="Masukkan NIS Anda (Contoh: 12345)" pattern="[0-9]*" inputmode="numeric" required 
+                               class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-goldCustom text-sm text-center font-bold tracking-wider transition">
+                    </div>
+
+                    <div>
+                        <label for="code-input" class="block text-xs font-bold text-emeraldCustom mb-1">2. Kode Presensi dari Guru</label>
+                        <input type="text" id="code-input" placeholder="Contoh: SKI1030" required 
+                               class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-goldCustom text-sm text-center font-bold tracking-widest uppercase transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-emeraldCustom mb-1">3. Status Kehadiran</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="border-2 border-emerald-200 bg-emerald-50/50 p-2 rounded-xl text-center cursor-pointer hover:bg-emerald-100 flex items-center justify-center gap-1">
+                                <input type="radio" name="attendance_status" value="Hadir" checked onclick="togglePermissionReason(false)" class="accent-emeraldCustom">
+                                <span class="text-xs font-bold text-emerald-800">Hadir</span>
+                            </label>
+                            <label class="border-2 border-amber-200 bg-amber-50/50 p-2 rounded-xl text-center cursor-pointer hover:bg-amber-100 flex items-center justify-center gap-1">
+                                <input type="radio" name="attendance_status" value="Izin" onclick="togglePermissionReason(true)" class="accent-amber-600">
+                                <span class="text-xs font-bold text-amber-800">Izin</span>
+                            </label>
+                            <label class="border-2 border-rose-200 bg-rose-50/50 p-2 rounded-xl text-center cursor-pointer hover:bg-rose-100 flex items-center justify-center gap-1">
+                                <input type="radio" name="attendance_status" value="Sakit" onclick="togglePermissionReason(true)" class="accent-rose-600">
+                                <span class="text-xs font-bold text-rose-800">Sakit</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="permission-reason-container" class="hidden">
+                        <label for="reason-input" class="block text-xs font-bold text-amber-800 mb-1">Keterangan / Alasan (Izin/Sakit)</label>
+                        <textarea id="reason-input" rows="2" placeholder="Tuliskan alasan singkat izin/sakit Anda..." 
+                                  class="w-full px-3 py-1.5 border-2 border-amber-300 rounded-xl text-xs focus:outline-none focus:border-goldCustom"></textarea>
+                    </div>
+
+                    <div id="login-error" class="hidden bg-red-50 text-red-700 border border-red-200 p-3 rounded-xl text-xs text-center space-y-2">
+                        <p id="login-error-msg">NIS atau Kode Presensi tidak valid.</p>
+                        <button type="button" onclick="resetLoginForm()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg font-bold text-[11px]">Coba Lagi</button>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emeraldCustom hover:bg-emeraldCustom-dark text-white py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
+                        <span>Kirim Presensi Digital</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </form>
+
+                <div class="mt-3 pt-3 border-t text-[11px] text-gray-500 text-center">
+                    <p class="font-semibold text-gray-600">Contoh NIS untuk Simulasi Siswa:</p>
+                    <div class="flex justify-center flex-wrap gap-1.5 mt-1">
+                        <button onclick="fillNis('12345')" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 rounded text-emerald-800 border border-emerald-200 font-mono">12345 (Ahmad - X A)</button>
+                        <button onclick="fillNis('12346')" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 rounded text-emerald-800 border border-emerald-200 font-mono">12346 (Siti - X B)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== KARTU TIKET PRESENSI DIGITAL SISWA ==================== -->
+    <div id="attendance-card-modal" class="fixed inset-0 z-[105] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white max-w-md w-full rounded-2xl p-6 relative border-4 border-goldCustom shadow-2xl space-y-4">
+            <div class="text-center space-y-1">
+                <span class="text-3xl">🎫</span>
+                <h3 class="text-lg font-extrabold text-emeraldCustom uppercase tracking-wider">Tiket Presensi Berhasil</h3>
+                <p class="text-xs text-gray-500">Bukti Kehadiran Pembelajaran Digital SKI</p>
+            </div>
+
+            <div class="bg-creamCustom border-2 border-dashed border-goldCustom p-4 rounded-xl space-y-3 text-xs">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-bold text-gray-500">Mata Pelajaran</span>
+                    <span class="font-bold text-emeraldCustom">Sejarah Kebudayaan Islam (SKI)</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-bold text-gray-500">Siswa / Kelas</span>
+                    <span id="ticket-student-info" class="font-bold text-gray-800">Ahmad Fauzi (X A)</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-bold text-gray-500">NIS</span>
+                    <span id="ticket-nis" class="font-mono font-bold text-gray-800">12345</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-bold text-gray-500">Waktu & Tanggal</span>
+                    <span id="ticket-datetime" class="font-bold text-gray-800">10/30/2026 07:15</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-bold text-gray-500">Kode Sesi</span>
+                    <span id="ticket-session" class="font-mono font-bold text-emeraldCustom">SKI1030</span>
+                </div>
+                <div class="flex justify-between items-center pt-1">
+                    <span class="font-bold text-gray-500">Status Kehadiran</span>
+                    <span id="ticket-status-badge" class="px-3 py-1 rounded-full font-extrabold text-white bg-emerald-600">HADIR</span>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-gray-500 text-center italic">
+                Presensi Anda telah dicatat oleh sistem. Silakan klik tombol di bawah untuk membuka media pembelajaran interaktif.
+            </p>
+
+            <button onclick="enterLearningMedia()" class="w-full bg-emeraldCustom hover:bg-emeraldCustom-dark text-white py-3 rounded-xl text-sm font-extrabold shadow-lg transition flex items-center justify-center gap-2">
+                <span>Masuk ke Beranda Pembelajaran</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL PANDUAN PENGGUNAAN ==================== -->
+    <div id="guide-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white max-w-lg w-full rounded-2xl p-6 relative border-2 border-goldCustom shadow-2xl space-y-4">
+            <button onclick="closeGuideModal()" class="absolute top-3 right-3 text-gray-400 hover:text-black font-bold text-xl">✕</button>
+            <div class="text-center space-y-1">
+                <span class="text-3xl">📖</span>
+                <h3 class="text-lg font-bold text-emeraldCustom">Panduan Media Pembelajaran</h3>
+                <p class="text-xs text-gray-500">Langkah-langkah Belajar Efektif SKI Kelas X MA</p>
+            </div>
+            <div class="space-y-3 text-xs text-gray-700 leading-relaxed border-t pt-3">
+                <div class="flex gap-2 items-start"><span class="bg-emeraldCustom text-white font-bold px-2 py-0.5 rounded">1</span><p><strong>Lakukan Presensi:</strong> Masukkan NIS dan Kode Presensi harian yang diberikan oleh Guru Pengampu.</p></div>
+                <div class="flex gap-2 items-start"><span class="bg-emeraldCustom text-white font-bold px-2 py-0.5 rounded">2</span><p><strong>Pelajari Materi:</strong> Buka menu Materi untuk membaca bab 1–3, timeline kronologi, dan tabel komparasi.</p></div>
+                <div class="flex gap-2 items-start"><span class="bg-emeraldCustom text-white font-bold px-2 py-0.5 rounded">3</span><p><strong>Simulasi Dakwah:</strong> Uji keahlian berdialog membina tokoh-tokoh awal Islam Makkah.</p></div>
+                <div class="flex gap-2 items-start"><span class="bg-emeraldCustom text-white font-bold px-2 py-0.5 rounded">4</span><p><strong>Evaluasi Kuis:</strong> Selesaikan 10 soal kuis interaktif untuk mengukur pemahaman dan mengunduh Sertifikat Kelulusan.</p></div>
+            </div>
+            <button onclick="closeGuideModal()" class="w-full bg-emeraldCustom hover:bg-emeraldCustom-dark text-white py-2 rounded-xl text-xs font-bold">Mengerti</button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL MODE GURU (PANEL ADMIN) ==================== -->
+    <div id="guru-modal" class="fixed inset-0 z-[110] bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white max-w-4xl w-full rounded-2xl shadow-2xl border-2 border-goldCustom overflow-hidden relative my-6 max-h-[90vh] flex flex-col">
+            <div class="bg-gradient-to-r from-emeraldCustom-dark to-emeraldCustom p-4 md:p-6 text-white flex justify-between items-center border-b-4 border-goldCustom flex-shrink-0">
+                <div>
+                    <h2 class="text-lg md:text-xl font-extrabold text-goldCustom">Panel Mode Guru - Presensi Digital</h2>
+                    <p class="text-xs text-emerald-200">Kelola Kode Sesi, Atur Batas Jam, & Monitor Presensi Real-Time</p>
+                </div>
+                <button onclick="closeGuruModal()" class="text-gray-300 hover:text-white font-bold text-2xl p-1">✕</button>
+            </div>
+
+            <div class="p-4 md:p-6 overflow-y-auto space-y-6 flex-grow">
+                <div id="guru-auth-section" class="max-w-md mx-auto bg-creamCustom p-6 rounded-2xl border border-gray-200 text-center space-y-4">
+                    <span class="text-4xl">🔐</span>
+                    <h3 class="font-bold text-emeraldCustom text-base">Masukan Password Guru</h3>
+                    <input type="password" id="guru-pass-input" placeholder="Default: guru2026" 
+                           class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl text-center font-bold focus:outline-none focus:border-goldCustom text-sm">
+                    <div id="guru-auth-error" class="hidden text-xs text-red-600 font-bold">Password salah! Silakan coba lagi.</div>
+                    <button onclick="verifyGuruPass()" class="w-full bg-emeraldCustom hover:bg-emeraldCustom-dark text-white py-2.5 rounded-xl text-sm font-bold shadow">
+                        Masuk Dashboard Guru
+                    </button>
+                </div>
+
+                <div id="guru-dashboard" class="hidden space-y-6">
+                    <div class="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200 space-y-3">
+                        <h4 class="font-bold text-emeraldCustom text-sm border-b border-emerald-200 pb-2 flex items-center gap-2">
+                            <span>⚙️</span> Buat / Perbarui Kode Presensi Hari Ini
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-emerald-900 mb-1">Mata Pelajaran</label>
+                                <input type="text" id="setup-subject" value="SKI" readonly class="w-full px-3 py-1.5 bg-gray-100 border rounded-lg text-xs font-bold text-gray-700">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-emerald-900 mb-1">Kode Sesi Presensi</label>
+                                <input type="text" id="setup-code" placeholder="Contoh: SKI1030" class="w-full px-3 py-1.5 border-2 border-gray-300 rounded-lg text-xs font-bold uppercase focus:border-goldCustom">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-emerald-900 mb-1">Target Kelas</label>
+                                <select id="setup-class" class="w-full px-3 py-1.5 border-2 border-gray-300 rounded-lg text-xs font-bold focus:border-goldCustom">
+                                    <option value="Semua">Semua Kelas</option>
+                                    <option value="X A">Kelas X A</option>
+                                    <option value="X B">Kelas X B</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-emerald-900 mb-1">Batas Jam Hadir</label>
+                                <input type="time" id="setup-deadline" value="07:30" class="w-full px-3 py-1.5 border-2 border-gray-300 rounded-lg text-xs font-bold focus:border-goldCustom">
+                            </div>
+                        </div>
+                        <div class="text-right pt-1">
+                            <button onclick="saveSessionSetup()" class="bg-emeraldCustom hover:bg-emeraldCustom-dark text-white px-4 py-2 rounded-lg text-xs font-bold shadow">
+                                Simpan Sesi Presensi
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-emeraldCustom text-sm mb-3">Statistik Kehadiran Real-Time</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+                            <div class="bg-emerald-100 border border-emerald-300 p-2 rounded-xl">
+                                <span class="block text-[10px] font-bold text-emerald-800 uppercase">Hadir</span>
+                                <span id="stat-hadir" class="text-lg font-extrabold text-emerald-900">0</span>
+                            </div>
+                            <div class="bg-amber-100 border border-amber-300 p-2 rounded-xl">
+                                <span class="block text-[10px] font-bold text-amber-800 uppercase">Terlambat</span>
+                                <span id="stat-terlambat" class="text-lg font-extrabold text-amber-900">0</span>
+                            </div>
+                            <div class="bg-blue-100 border border-blue-300 p-2 rounded-xl">
+                                <span class="block text-[10px] font-bold text-blue-800 uppercase">Izin</span>
+                                <span id="stat-izin" class="text-lg font-extrabold text-blue-900">0</span>
+                            </div>
+                            <div class="bg-rose-100 border border-rose-300 p-2 rounded-xl">
+                                <span class="block text-[10px] font-bold text-rose-800 uppercase">Sakit</span>
+                                <span id="stat-sakit" class="text-lg font-extrabold text-rose-900">0</span>
+                            </div>
+                            <div class="bg-gray-100 border border-gray-300 p-2 rounded-xl col-span-2 sm:col-span-1">
+                                <span class="block text-[10px] font-bold text-gray-700 uppercase">Belum Absen</span>
+                                <span id="stat-belum" class="text-lg font-extrabold text-gray-800">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-gray-50 p-3 rounded-xl border">
+                        <input type="text" id="guru-search" oninput="renderGuruTable()" placeholder="Cari Nama / NIS..." 
+                               class="w-full sm:w-64 px-3 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-goldCustom">
+                        <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+                            <button onclick="copyRecapClipboard()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">📋 Salin Rekap</button>
+                            <button onclick="downloadRecapCSV()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">📥 Unduh CSV</button>
+                            <button onclick="resetTodayAttendance()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">🗑️ Reset Hari Ini</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border rounded-xl">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-emeraldCustom text-white">
+                                    <th class="p-2.5">NIS</th>
+                                    <th class="p-2.5">Nama Siswa</th>
+                                    <th class="p-2.5">Kelas</th>
+                                    <th class="p-2.5">Waktu</th>
+                                    <th class="p-2.5">Status</th>
+                                    <th class="p-2.5">Keterangan</th>
+                                    <th class="p-2.5 text-center">Aksi / Ubah</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guru-recap-tbody" class="divide-y divide-gray-200 bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER & NAVBAR UTAMA -->
+    <header class="bg-emeraldCustom-dark text-white sticky top-0 z-50 shadow-md border-b-2 border-goldCustom">
+        <div class="max-w-6xl mx-auto px-4 py-3">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                <div class="text-center md:text-left flex items-center gap-3">
+                    <div class="w-10 h-10 bg-goldCustom text-emeraldCustom-dark rounded-xl flex items-center justify-center text-xl font-extrabold shadow">
+                        🕌
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-lg md:text-xl font-extrabold text-goldCustom">Media Pembelajaran SKI</h1>
+                            <span class="bg-emerald-800 text-goldCustom border border-goldCustom/40 text-[10px] px-2 py-0.5 rounded-full font-semibold">Kelas X MA</span>
+                        </div>
+                        <p class="text-xs text-emerald-100">“Dakwah Nabi Muhammad Saw. secara Sembunyi-Sembunyi” | Guru: Syafii, S.Pd.I.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <nav class="flex bg-emeraldCustom/50 p-1 rounded-xl border border-goldCustom/30">
+                        <button onclick="switchTab('beranda')" id="tab-beranda" class="tab-btn active px-3 py-1.5 rounded-lg text-xs font-semibold transition">Beranda</button>
+                        <button onclick="switchTab('materi')" id="tab-materi" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition">Materi</button>
+                        <button onclick="switchTab('simulasi')" id="tab-simulasi" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition">Simulasi</button>
+                        <button onclick="switchTab('kuis')" id="tab-kuis" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition">Kuis</button>
+                    </nav>
+
+                    <button onclick="logout()" title="Keluar / Ganti Siswa" class="bg-red-600/80 hover:bg-red-700 text-white p-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER UTAMA -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full space-y-8">
+
+        <!-- ==================== SEKSI BERANDA (BENTO DASHBOARD) ==================== -->
+        <section id="sec-beranda" class="space-y-8">
+
+            <!-- 1. HERO SECTION -->
+            <div class="bg-gradient-to-r from-emeraldCustom to-emeraldCustom-dark text-white p-6 md:p-8 rounded-3xl shadow-xl border-b-4 border-goldCustom relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div class="space-y-2 z-10 max-w-2xl">
+                    <span class="inline-block bg-goldCustom text-emeraldCustom-dark font-extrabold text-[10px] uppercase px-3 py-1 rounded-full tracking-wider">
+                        Portal Belajar SKI Kelas X MA
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-black text-goldCustom leading-tight">
+                        Ahlan wa sahlan, <span id="hero-student-name">Siswa</span> 👋
+                    </h2>
+                    <p class="text-xs md:text-sm text-emerald-100 leading-relaxed">
+                        Mari menelusuri keteladanan, hikmah, dan keagungan strategi dakwah Nabi Muhammad Saw. secara sirriyah (sembunyi-sembunyi) di Kota Makkah.
+                    </p>
+
+                    <div class="pt-2 flex flex-wrap gap-3 items-center">
+                        <button onclick="switchTab('materi')" class="bg-goldCustom hover:bg-goldCustom-hover text-emeraldCustom-dark px-5 py-2.5 rounded-xl font-extrabold text-xs md:text-sm shadow-md transition flex items-center gap-2">
+                            <span>🚀 Mulai Belajar Sekarang</span>
+                        </button>
+                        <button onclick="openGuideModal()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition border border-white/20">
+                            📖 Panduan Media
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Progress & Presensi Status -->
+                <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 w-full md:w-64 space-y-3 z-10 flex-shrink-0">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-emerald-200 font-medium">Status Presensi:</span>
+                        <span id="hero-attendance-status" class="px-2 py-0.5 rounded-full font-bold text-[10px] bg-emerald-500 text-white">HADIR</span>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-goldCustom">Progres Belajar</span>
+                            <span id="hero-progress-num" class="font-bold text-white">25%</span>
+                        </div>
+                        <div class="w-full bg-black/20 rounded-full h-2">
+                            <div id="hero-progress-bar" class="bg-goldCustom h-2 rounded-full transition-all duration-500" style="width: 25%"></div>
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] text-emerald-200 italic text-center border-t border-white/10 pt-2">
+                        NIS: <span id="hero-student-nis" class="font-mono text-white">12345</span> | Kelas: <span id="hero-student-class" class="text-white">X A</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2. BENTO DASHBOARD ASIMETRIS -->
+            <div class="space-y-3">
+                <h3 class="text-lg font-bold text-emeraldCustom flex items-center gap-2">
+                    <span class="text-xl">📊</span> Menu & Akses Belajar
+                </h3>
+
+                <!-- Grid Asimetris Bento -->
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+                    <!-- Kartu Besar 1: Materi Pembelajaran (Col Span 2) -->
+                    <div class="bento-card bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm md:col-span-2 flex flex-col justify-between relative overflow-hidden group">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-start">
+                                <span class="p-3 bg-emerald-100 text-emeraldCustom rounded-xl text-2xl">📚</span>
+                                <span class="bg-emerald-50 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-200">Bab 1–3 SKI</span>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-emeraldCustom group-hover:text-goldCustom transition">Materi Pembelajaran Interaktif</h4>
+                                <p class="text-xs text-gray-600 mt-1 leading-relaxed">
+                                    Awal kenabian, kronologi wahyu, alasan dakwah sirriyah, peran Rumah Arqam, serta perbandingan strategi Sirriyah & Jahriyah.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t mt-4 flex justify-between items-center">
+                            <span id="bento-materi-status" class="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                                <span>🟢</span> Tersedia
+                            </span>
+                            <button onclick="switchTab('materi')" class="bg-emeraldCustom hover:bg-emeraldCustom-dark text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                                <span>Buka Materi</span> ➔
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Sedang 1: Video Pembelajaran -->
+                    <div class="bento-card bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="p-2.5 bg-amber-100 text-amber-800 rounded-xl text-xl">🎬</span>
+                                <span class="text-[10px] font-bold bg-amber-50 text-amber-800 px-2 py-0.5 rounded">Media Visual</span>
+                            </div>
+                            <h4 class="font-bold text-emeraldCustom text-sm">Video Pembelajaran</h4>
+                            <div class="bg-gray-100 rounded-xl p-3 text-center border border-dashed border-gray-300 relative overflow-hidden group">
+                                <span class="text-3xl">▶️</span>
+                                <p class="text-[10px] text-gray-500 font-bold mt-1">Animasi Sirriyah</p>
+                            </div>
+                        </div>
+                        <button onclick="scrollToVideo()" class="mt-3 w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-xl text-xs font-bold transition">
+                            Tonton Video
+                        </button>
+                    </div>
+
+                    <!-- Kartu Sedang 2: Simulasi Dakwah Sirriyah -->
+                    <div class="bento-card bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="p-2.5 bg-blue-100 text-blue-800 rounded-xl text-xl">🎮</span>
+                                <span class="text-[10px] font-bold bg-blue-50 text-blue-800 px-2 py-0.5 rounded">Interaktif</span>
+                            </div>
+                            <h4 class="font-bold text-emeraldCustom text-sm">Simulasi Dakwah Sirriyah</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed">
+                                Skenario dialog membina tokoh keluarga, sahabat karib, dan masyarakat Makkah.
+                            </p>
+                        </div>
+                        <button onclick="switchTab('simulasi')" class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl text-xs font-bold transition">
+                            Mulai Simulasi
+                        </button>
+                    </div>
+
+                    <!-- Kartu Besar 2: Kuis Interaktif 10 Soal (Col Span 2) -->
+                    <div class="bento-card bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm md:col-span-2 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-start">
+                                <span class="p-3 bg-purple-100 text-purple-800 rounded-xl text-2xl">📝</span>
+                                <span id="bento-quiz-score-badge" class="bg-goldCustom/20 text-emeraldCustom font-bold text-xs px-3 py-1 rounded-full border border-goldCustom">Skor Terakhir: -</span>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-emeraldCustom">Kuis Interaktif (10 Soal)</h4>
+                                <p class="text-xs text-gray-600 mt-1 leading-relaxed">
+                                    Evaluasi pemahaman Bab 1–3 SKI. Dapatkan hasil skor instan dan sertifikat kelulusan digital yang dapat diunduh.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t mt-4 flex justify-between items-center">
+                            <span id="bento-quiz-status" class="text-[11px] font-bold text-gray-500">
+                                🟡 Belum Mengerjakan
+                            </span>
+                            <button onclick="switchTab('kuis')" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition">
+                                Mulai Kuis ➔
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Kecil 1: Presensi -->
+                    <div onclick="openAttendanceCardModal()" class="bento-card bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 cursor-pointer flex items-center gap-3">
+                        <span class="text-2xl">🎫</span>
+                        <div>
+                            <span class="text-[10px] font-bold text-emerald-800 uppercase block">Kartu Presensi</span>
+                            <span id="bento-presence-time" class="text-xs font-extrabold text-emeraldCustom">Tercatat 07:15</span>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Kecil 2: Profil Siswa -->
+                    <div class="bento-card bg-creamCustom p-4 rounded-2xl border border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">👤</span>
+                            <div>
+                                <h5 id="bento-student-name" class="text-xs font-bold text-gray-800">Ahmad Fauzi</h5>
+                                <p id="bento-student-info" class="text-[10px] text-gray-500">NIS: 12345 | X A</p>
+                            </div>
+                        </div>
+                        <button onclick="logout()" class="text-red-600 font-bold text-xs p-1">Keluar</button>
+                    </div>
+
+                    <!-- Kartu Kecil 3: Mode Guru -->
+                    <div onclick="openGuruModal()" class="bento-card bg-goldCustom/20 p-4 rounded-2xl border border-goldCustom cursor-pointer flex items-center gap-3">
+                        <span class="text-2xl">🔐</span>
+                        <div>
+                            <span class="text-[10px] font-bold text-emeraldCustom-dark uppercase block">Akses Khusus</span>
+                            <span class="text-xs font-extrabold text-emeraldCustom">Mode Guru</span>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Kecil 4: Panduan -->
+                    <div onclick="openGuideModal()" class="bento-card bg-white p-4 rounded-2xl border border-gray-200 cursor-pointer flex items-center gap-3">
+                        <span class="text-2xl">💡</span>
+                        <div>
+                            <span class="text-[10px] font-bold text-gray-500 uppercase block">Bantuan</span>
+                            <span class="text-xs font-extrabold text-gray-800">Panduan Media</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 3. JALUR PERJALANAN BELAJAR (LEARNING PATHWAY TIMELINE) -->
+            <div class="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-base font-bold text-emeraldCustom flex items-center gap-2">
+                        <span>🗺️</span> Jalur Perjalanan Belajar Anda
+                    </h3>
+                    <span class="text-xs text-gray-500">Ikuti urutan langkah untuk kelulusan</span>
+                </div>
+
+                <!-- Timeline Horizontal Grid -->
+                <div class="relative py-4">
+                    <!-- Garis Penghubung Emas Putus-Putus -->
+                    <div class="absolute top-1/2 left-8 right-8 h-1 -translate-y-1/2 border-b-2 border-dashed border-goldCustom z-0 hidden md:block"></div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 relative z-10 text-center">
+
+                        <!-- Step 1: Presensi -->
+                        <div class="space-y-1 flex flex-col items-center">
+                            <div id="step-1-icon" class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-md border-2 border-goldCustom">
+                                ✓
+                            </div>
+                            <span class="text-xs font-bold text-emeraldCustom">1. Presensi</span>
+                            <span class="text-[10px] text-gray-500">Selesai</span>
+                        </div>
+
+                        <!-- Step 2: Materi -->
+                        <div class="space-y-1 flex flex-col items-center">
+                            <div id="step-2-icon" class="w-12 h-12 rounded-full bg-goldCustom text-emeraldCustom-dark flex items-center justify-center font-bold text-lg shadow-md pulse-active border-2 border-emeraldCustom">
+                                📖
+                            </div>
+                            <span class="text-xs font-bold text-emeraldCustom">2. Materi</span>
+                            <span id="step-2-status" class="text-[10px] font-bold text-amber-700">Berlangsung</span>
+                        </div>
+
+                        <!-- Step 3: Video -->
+                        <div class="space-y-1 flex flex-col items-center">
+                            <div id="step-3-icon" class="w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-lg border-2 border-gray-300">
+                                🎬
+                            </div>
+                            <span class="text-xs font-bold text-gray-600">3. Video</span>
+                            <span id="step-3-status" class="text-[10px] text-gray-400">Siap Ditonton</span>
+                        </div>
+
+                        <!-- Step 4: Simulasi -->
+                        <div class="space-y-1 flex flex-col items-center">
+                            <div id="step-4-icon" class="w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-lg border-2 border-gray-300">
+                                🎮
+                            </div>
+                            <span class="text-xs font-bold text-gray-600">4. Simulasi</span>
+                            <span id="step-4-status" class="text-[10px] text-gray-400">Belum Selesai</span>
+                        </div>
+
+                        <!-- Step 5: Kuis -->
+                        <div class="space-y-1 flex flex-col items-center">
+                            <div id="step-5-icon" class="w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-lg border-2 border-gray-300">
+                                🔒
+                            </div>
+                            <span class="text-xs font-bold text-gray-600">5. Kuis 10 Soal</span>
+                            <span id="step-5-status" class="text-[10px] text-gray-400">Evaluasi</span>
+                        </div>
+
+                        <!-- Step 6: Sertifikat -->
+                        <div class="space-y-1 flex flex-col items-center">
+                            <div id="step-6-icon" class="w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-lg border-2 border-gray-300">
+                                🎓
+                            </div>
+                            <span class="text-xs font-bold text-gray-600">6. Sertifikat</span>
+                            <span id="step-6-status" class="text-[10px] text-gray-400">Selesai</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEKSI VIDEO PEMBELAJARAN (PLACEHOLDER INTERAKTIF) -->
+            <div id="video-section" class="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm space-y-3">
+                <h3 class="text-base font-bold text-emeraldCustom flex items-center gap-2">
+                    <span>🎬</span> Video Pembelajaran: “Awal Mulai Dakwah Sirriyah Makkah”
+                </h3>
+                <div class="aspect-video bg-emeraldCustom-dark/90 rounded-2xl flex flex-col items-center justify-center text-white p-6 text-center relative overflow-hidden border-2 border-goldCustom">
+                    <span class="text-5xl mb-2 cursor-pointer hover:scale-110 transition" onclick="playVideoPlaceholder()">▶️</span>
+                    <p class="font-bold text-goldCustom text-sm md:text-base">Media Pembelajaran SKI Kelas X MA</p>
+                    <p class="text-xs text-emerald-200 mt-1 max-w-md">Klik tombol play di atas untuk menyimak penjelasan naratif pergerakan dakwah sirriyah Rasulullah Saw.</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SEKSI 1: MATERI INTERAKTIF -->
+        <section id="sec-materi" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-emeraldCustom to-emeraldCustom-dark text-white p-6 rounded-2xl shadow-lg border-b-4 border-goldCustom">
+                <h2 class="text-2xl font-bold mb-2 text-goldCustom">Pelajaran Dakwah Sirriyah Rasulullah Saw.</h2>
+                <p class="text-sm md:text-base leading-relaxed text-emerald-100">
+                    Siswa-siswi sekalian, marilah kita mempelajari strategi dakwah penuh kearifan dan ketabahan Rasulullah Saw. dalam membina umat awal Islam di Makkah. Pemahaman ini akan membentuk karakter dai muda yang bijaksana, santun, dan berakhlak mulia.
+                </p>
+            </div>
+
+            <!-- Timeline Urutan Peristiwa -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100">
+                <h3 class="text-lg font-bold text-emeraldCustom mb-4 flex items-center gap-2">
+                    <span class="bg-emeraldCustom text-white p-1.5 rounded-lg text-xs">01</span>
+                    Kronologi & Jalur Peristiwa
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 bg-emeraldCustom-subtle/30 rounded-xl border-l-4 border-emeraldCustom">
+                        <h4 class="font-bold text-emeraldCustom-dark text-sm mb-1">1. Wahyu Pertama & Awal Kenabian</h4>
+                        <p class="text-xs text-gray-600 leading-relaxed">Turunnya Q.S. Al-'Alaq 1-5 di Gua Hira menandai kenabian, dilanjutkan Q.S. Al-Muddassir 1-7 yang memerintahkan untuk mulai menyeru manusia.</p>
+                    </div>
+                    <div class="p-4 bg-emeraldCustom-subtle/30 rounded-xl border-l-4 border-goldCustom">
+                        <h4 class="font-bold text-emeraldCustom-dark text-sm mb-1">2. Masa Dakwah Sirriyah (3 Tahun)</h4>
+                        <p class="text-xs text-gray-600 leading-relaxed">Dilakukan secara rahasia untuk menghindari respon frontal kafir Quraisy dan melindungi komunitas muslim awal yang masih sedikit.</p>
+                    </div>
+                    <div class="p-4 bg-emeraldCustom-subtle/30 rounded-xl border-l-4 border-emeraldCustom">
+                        <h4 class="font-bold text-emeraldCustom-dark text-sm mb-1">3. Peralihan ke Terang-terangan</h4>
+                        <p class="text-xs text-gray-600 leading-relaxed">Turunnya Q.S. Al-Hijr ayat 94 memerintahkan Rasulullah Saw. bertransisi menyeru masyarakat Makkah secara terbuka (Jahriyah).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accordion Kartu Materi -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-emeraldCustom flex items-center gap-2">
+                    <span class="bg-emeraldCustom text-white p-1.5 rounded-lg text-xs">02</span>
+                    Eksplorasi Pendalaman Materi (Klik untuk membuka)
+                </h3>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="toggleAccordion('acc-1')" class="w-full text-left p-4 font-semibold text-emeraldCustom-dark bg-white hover:bg-emerald-50 flex justify-between items-center transition">
+                        <span class="flex items-center gap-2">
+                            <span class="text-xl">💡</span> Latar Belakang & Alasan Dakwah Sirriyah
+                        </span>
+                        <span id="icon-acc-1" class="text-goldCustom text-xl font-bold">+</span>
+                    </button>
+                    <div id="acc-1" class="accordion-content bg-creamCustom px-4 text-sm text-gray-700">
+                        <div class="py-3 border-t border-gray-200 space-y-2">
+                            <p><strong>Latar Belakang:</strong> Makkah saat itu dipenuhi penyembahan berhala dan tradisi jahiliyah yang kuat secara kesukuan. Kaum Quraisy memegang kendali sosial, politik, dan ekonomi.</p>
+                            <p><strong>Alasan Strategis Sirriyah:</strong></p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><strong>Menghindari Pemusnahan Awal:</strong> Komunitas muslim masih sangat kecil dan rentan dihancurkan jika berkonfrontasi langsung.</li>
+                                <li><strong>Memperkuat Fondasi Keimanan:</strong> Membutuhkan waktu untuk pembinaan akidah yang kokoh tanpa gangguan fisik/intimidasi luar.</li>
+                                <li><strong>Kearifan Strategi:</strong> Mendidik kader-kader awal (Assabiqunal Awwalun) yang tangguh sebelum menghadapi tantangan dakwah yang lebih luas.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="toggleAccordion('acc-2')" class="w-full text-left p-4 font-semibold text-emeraldCustom-dark bg-white hover:bg-emerald-50 flex justify-between items-center transition">
+                        <span class="flex items-center gap-2">
+                            <span class="text-xl">👥</span> Tokoh-Tokoh Pelopor (Assabiqunal Awwalun)
+                        </span>
+                        <span id="icon-acc-2" class="text-goldCustom text-xl font-bold">+</span>
+                    </button>
+                    <div id="acc-2" class="accordion-content bg-creamCustom px-4 text-sm text-gray-700">
+                        <div class="py-3 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <h5 class="font-bold text-emeraldCustom">Khadijah binti Khuwailid r.a.</h5>
+                                <p class="text-xs text-gray-600">Wanita pertama yang beriman, isteri Nabi Saw., penguat utama dakwah dengan jiwa dan harta bendanya.</p>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <h5 class="font-bold text-emeraldCustom">Ali bin Abi Thalib r.a.</h5>
+                                <p class="text-xs text-gray-600">Golongan anak-anak/pemuda pertama yang masuk Islam, sepupu Nabi Saw. yang sangat pemberani.</p>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <h5 class="font-bold text-emeraldCustom">Abu Bakar ash-Shiddiq r.a.</h5>
+                                <p class="text-xs text-gray-600">Laki-laki dewasa merdeka pertama, sahabat dekat yang gigih mengajak tokoh-tokoh Quraisy lain masuk Islam.</p>
+                            </div>
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <h5 class="font-bold text-emeraldCustom">Zaid bin Haritsah r.a.</h5>
+                                <p class="text-xs text-gray-600">Dari kalangan mantan hamba sahaya/bekas budak Nabi Saw. yang setia mendukung perjuangan risalah.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="toggleAccordion('acc-3')" class="w-full text-left p-4 font-semibold text-emeraldCustom-dark bg-white hover:bg-emerald-50 flex justify-between items-center transition">
+                        <span class="flex items-center gap-2">
+                            <span class="text-xl">🏠</span> Peran Rumah Arqam bin Abi al-Arqam
+                        </span>
+                        <span id="icon-acc-3" class="text-goldCustom text-xl font-bold">+</span>
+                    </button>
+                    <div id="acc-3" class="accordion-content bg-creamCustom px-4 text-sm text-gray-700">
+                        <div class="py-3 border-t border-gray-200 space-y-2">
+                            <p>Rumah <strong>Arqam bin Abi al-Arqam</strong> (Darul Arqam) terletak di kaki bukit Shafa. Rumah ini dipilih karena letaknya yang tersembunyi dan Arqam saat itu belum dicurigai sebagai pengikut Nabi.</p>
+                            <p><strong>Fungsi Darul Arqam:</strong></p>
+                            <ul class="list-disc pl-5 space-y-1 text-xs md:text-sm">
+                                <li>Pusat pembinaan tauhid dan pengajaran Al-Qur'an secara intensif.</li>
+                                <li>Tempat berkumpul, beribadah, dan berdiskusi secara aman.</li>
+                                <li>Laboratorium pembentukan karakter kader mukmin yang kokoh dan solid.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <button onclick="toggleAccordion('acc-4')" class="w-full text-left p-4 font-semibold text-emeraldCustom-dark bg-white hover:bg-emerald-50 flex justify-between items-center transition">
+                        <span class="flex items-center gap-2">
+                            <span class="text-xl">🎯</span> Metode & Pokok Materi Dakwah Sirriyah
+                        </span>
+                        <span id="icon-acc-4" class="text-goldCustom text-xl font-bold">+</span>
+                    </button>
+                    <div id="acc-4" class="accordion-content bg-creamCustom px-4 text-sm text-gray-700">
+                        <div class="py-3 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h5 class="font-bold text-emeraldCustom mb-1">Metode Dakwah:</h5>
+                                <ul class="list-disc pl-4 space-y-1 text-xs">
+                                    <li>Pembinaan pribadi & pendekatan keluarga dekat.</li>
+                                    <li>Halaqah kecil (kelompok belajar serap ilmu).</li>
+                                    <li>Keteladanan akhlakul karimah (Uswatun Hasanah).</li>
+                                    <li>Pembacaan dan penanaman ayat-ayat Al-Qur'an.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-emeraldCustom mb-1">Materi Utama Dakwah:</h5>
+                                <ul class="list-disc pl-4 space-y-1 text-xs">
+                                    <li><strong>Tauhid:</strong> Memurnikan keesaan Allah Swt. dan meninggalkan penyembahan berhala.</li>
+                                    <li><strong>Akhlak:</strong> Menyucikan jiwa dari kebiasaan buruk jahiliyah.</li>
+                                    <li><strong>Kesetaraan Manusia:</strong> Menghapus strata sosial dan perbudakan.</li>
+                                    <li><strong>Hari Akhir:</strong> Meyakini pertanggungjawaban amalan di akhirat.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Komparasi Sirriyah vs Jahriyah -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100 overflow-x-auto">
+                <h3 class="text-lg font-bold text-emeraldCustom mb-3 flex items-center gap-2">
+                    <span class="bg-emeraldCustom text-white p-1.5 rounded-lg text-xs">03</span>
+                    Perbandingan Dakwah Sirriyah & Jahriyah
+                </h3>
+                <table class="w-full text-left border-collapse text-xs md:text-sm min-w-[500px]">
+                    <thead>
+                        <tr class="bg-emeraldCustom text-white">
+                            <th class="p-3 rounded-tl-lg">Aspek</th>
+                            <th class="p-3">Dakwah Sirriyah (Sembunyi)</th>
+                            <th class="p-3 rounded-tr-lg">Dakwah Jahriyah (Terang-terangan)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-creamCustom">
+                            <td class="p-3 font-semibold text-emeraldCustom">Durasi Waktu</td>
+                            <td class="p-3">Sekitar 3 Tahun</td>
+                            <td class="p-3">Hingga Akhir Hayat Rasulullah Saw.</td>
+                        </tr>
+                        <tr class="hover:bg-creamCustom">
+                            <td class="p-3 font-semibold text-emeraldCustom">Dasar Hukum Wahyu</td>
+                            <td class="p-3">Q.S. Al-Muddassir [74]: 1-7</td>
+                            <td class="p-3">Q.S. Al-Hijr [15]: 94</td>
+                        </tr>
+                        <tr class="hover:bg-creamCustom">
+                            <td class="p-3 font-semibold text-emeraldCustom">Sasaran Target</td>
+                            <td class="p-3">Keluarga, Kerabat, Sahabat Terdekat</td>
+                            <td class="p-3">Seluruh Masyarakat Makkah & Luar Kota</td>
+                        </tr>
+                        <tr class="hover:bg-creamCustom">
+                            <td class="p-3 font-semibold text-emeraldCustom">Pusat Kegiatan</td>
+                            <td class="p-3">Rumah Arqam bin Abi al-Arqam</td>
+                            <td class="p-3">Bukit Shafa, Ka'bah, & Tempat Umum</td>
+                        </tr>
+                        <tr class="hover:bg-creamCustom">
+                            <td class="p-3 font-semibold text-emeraldCustom">Fokus Utama</td>
+                            <td class="p-3">Pembentukan Karakter & Kader Awal</td>
+                            <td class="p-3">Penyebaran Risalah Secara Luas & Terbuka</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SEKSI 2: SIMULASI INTERAKTIF -->
+        <section id="sec-simulasi" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-emerald-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b">
+                    <div>
+                        <h2 class="text-2xl font-bold text-emeraldCustom">Simulasi Dakwah Sirriyah: Membina Umat Awal</h2>
+                        <p class="text-xs md:text-sm text-emerald-800 font-semibold mt-0.5" id="sim-welcome-msg">
+                            Selamat datang! Mari jalankan simulasi dakwah sirriyah.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-2 w-full md:w-auto justify-between md:justify-end">
+                        <div class="bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 text-center">
+                            <span class="block text-[10px] uppercase font-bold text-emerald-700">Keimanan</span>
+                            <span id="score-iman" class="text-lg font-extrabold text-emeraldCustom">0</span>
+                        </div>
+                        <div class="bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 text-center">
+                            <span class="block text-[10px] uppercase font-bold text-amber-700">Keberanian</span>
+                            <span id="score-berani" class="text-lg font-extrabold text-amber-700">0</span>
+                        </div>
+                        <div class="bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 text-center">
+                            <span class="block text-[10px] uppercase font-bold text-blue-700">Persatuan</span>
+                            <span id="score-satu" class="text-lg font-extrabold text-blue-700">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sim-main-container">
+                    <p class="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wider">Pilih Tokoh untuk Diajak Berdialog:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div onclick="selectCharacter(0)" id="char-card-0" class="bento-card border-2 border-emerald-200 bg-white p-4 rounded-xl cursor-pointer text-center relative overflow-hidden">
+                            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl">🏡</div>
+                            <h4 class="font-bold text-emeraldCustom text-sm">Keluarga Dekat</h4>
+                            <p class="text-xs text-gray-500 mt-1">Mengajak dengan kelembutan kasih sayang</p>
+                            <span id="status-0" class="mt-2 inline-block text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold">Belum Diajak</span>
+                        </div>
+
+                        <div onclick="selectCharacter(1)" id="char-card-1" class="bento-card border-2 border-emerald-200 bg-white p-4 rounded-xl cursor-pointer text-center relative overflow-hidden">
+                            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl">🤝</div>
+                            <h4 class="font-bold text-emeraldCustom text-sm">Sahabat Karib</h4>
+                            <p class="text-xs text-gray-500 mt-1">Diskusi berdasarkan kepercayaan kejujuran</p>
+                            <span id="status-1" class="mt-2 inline-block text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold">Belum Diajak</span>
+                        </div>
+
+                        <div onclick="selectCharacter(2)" id="char-card-2" class="bento-card border-2 border-emerald-200 bg-white p-4 rounded-xl cursor-pointer text-center relative overflow-hidden">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl">🏹</div>
+                            <h4 class="font-bold text-emeraldCustom text-sm">Pemuda Quraisy</h4>
+                            <p class="text-xs text-gray-500 mt-1">Mencari kebenaran & keadilan hakiki</p>
+                            <span id="status-2" class="mt-2 inline-block text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold">Belum Diajak</span>
+                        </div>
+
+                        <div onclick="selectCharacter(3)" id="char-card-3" class="bento-card border-2 border-emerald-200 bg-white p-4 rounded-xl cursor-pointer text-center relative overflow-hidden">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl">🏛️</div>
+                            <h4 class="font-bold text-emeraldCustom text-sm">Masyarakat Makkah</h4>
+                            <p class="text-xs text-gray-500 mt-1">Keingintahuan tentang tempat berkumpul</p>
+                            <span id="status-3" class="mt-2 inline-block text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold">Belum Diajak</span>
+                        </div>
+                    </div>
+
+                    <div id="dialog-area" class="hidden bg-creamCustom p-6 rounded-xl border border-goldCustom/40">
+                        <div class="flex items-center gap-3 mb-4 border-b border-gray-200 pb-3">
+                            <span id="dialog-icon" class="text-3xl">💬</span>
+                            <div>
+                                <h3 id="dialog-title" class="font-bold text-emeraldCustom-dark text-lg">Judul Dialog</h3>
+                                <p id="dialog-subtitle" class="text-xs text-gray-500">Pertanyaan atau keraguan tokoh</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                            <p id="dialog-question" class="text-sm font-medium text-gray-800 italic">"Pertanyaan tokoh..."</p>
+                        </div>
+
+                        <p class="text-xs font-semibold text-emeraldCustom mb-2">Pilih Strategi Penyampaian Anda:</p>
+                        <div id="dialog-options" class="space-y-2"></div>
+
+                        <div id="dialog-feedback" class="hidden mt-4 p-4 rounded-lg text-xs md:text-sm"></div>
+
+                        <div id="dialog-next-btn" class="hidden mt-4 text-right">
+                            <button onclick="closeDialog()" class="bg-emeraldCustom hover:bg-emeraldCustom-dark text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                                Selesai Berdialog
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sim-result-container" class="hidden text-center py-8 space-y-4">
+                    <div class="w-20 h-20 bg-goldCustom/20 text-goldCustom rounded-full flex items-center justify-center mx-auto text-4xl border-2 border-goldCustom">
+                        🏆
+                    </div>
+                    <h3 class="text-2xl font-bold text-emeraldCustom">Simulasi Pembinaan Selesai!</h3>
+                    <p id="sim-result-student" class="text-sm font-semibold text-gray-600"></p>
+                    <p id="sim-predicate" class="text-xl font-extrabold text-goldCustom">Predikat: Dai Strategis</p>
+
+                    <div class="max-w-md mx-auto bg-creamCustom p-4 rounded-xl border border-gray-200 text-left text-xs md:text-sm space-y-2">
+                        <p class="font-bold text-emeraldCustom-dark border-b pb-1">Ringkasan Hikmah Simulasi:</p>
+                        <p id="sim-summary-text" class="text-gray-700 leading-relaxed"></p>
+                    </div>
+
+                    <div class="pt-4">
+                        <button onclick="resetSimulation()" class="bg-emeraldCustom hover:bg-emeraldCustom-dark text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow transition">
+                            🔄 Ulangi Simulasi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEKSI 3: KUIS INTERAKTIF -->
+        <section id="sec-kuis" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-emerald-100 max-w-3xl mx-auto">
+                <div id="quiz-header" class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="quiz-progress-text" class="text-xs font-bold text-emeraldCustom uppercase tracking-wider">Soal 1 dari 10</span>
+                        <span id="quiz-score-badge" class="text-xs font-bold bg-goldCustom-light text-emeraldCustom-dark px-2.5 py-1 rounded-full border border-goldCustom">Skor: 0</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="quiz-progress-bar" class="bg-emeraldCustom h-2.5 rounded-full transition-all duration-300" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div id="quiz-question-container" class="space-y-4">
+                    <h3 id="quiz-question-text" class="text-base md:text-lg font-bold text-gray-800 leading-snug">
+                        Loading pertanyaan...
+                    </h3>
+
+                    <div id="quiz-options-container" class="space-y-2.5 pt-2"></div>
+
+                    <div id="quiz-feedback-box" class="hidden p-4 rounded-xl text-xs md:text-sm leading-relaxed mt-4">
+                        <span id="quiz-feedback-title" class="font-bold block mb-1"></span>
+                        <p id="quiz-feedback-text" class="text-gray-700"></p>
+                    </div>
+
+                    <div id="quiz-next-container" class="hidden text-right pt-2">
+                        <button onclick="nextQuestion()" class="bg-emeraldCustom hover:bg-emeraldCustom-dark text-white px-6 py-2 rounded-xl text-sm font-bold shadow">
+                            Lanjut Soal Berikutnya ➔
+                        </button>
+                    </div>
+                </div>
+
+                <div id="quiz-result-container" class="hidden text-center py-6 space-y-4">
+                    <div class="w-24 h-24 bg-emerald-100 text-emeraldCustom rounded-full flex items-center justify-center mx-auto text-4xl border-4 border-goldCustom">
+                        🎓
+                    </div>
+                    <h3 class="text-2xl font-bold text-emeraldCustom">Hasil Akhir Kuis SKI</h3>
+                    
+                    <div class="py-2">
+                        <p id="quiz-final-student" class="text-sm font-semibold text-emeraldCustom-dark">Skor Akhir:</p>
+                        <span id="quiz-final-score" class="text-4xl font-extrabold text-emeraldCustom">0 / 100</span>
+                        <p id="quiz-final-percentage" class="text-sm font-semibold text-gray-500 mt-1">(0% Jawaban Benar)</p>
+                    </div>
+
+                    <div id="quiz-predicate-badge" class="inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-goldCustom text-emeraldCustom-dark">
+                        Predikat: -
+                    </div>
+
+                    <div class="max-w-md mx-auto bg-creamCustom p-4 rounded-xl border border-gray-200 text-left text-xs md:text-sm space-y-2">
+                        <p class="font-bold text-emeraldCustom-dark border-b pb-1">Ulasan Belajar Anda:</p>
+                        <p id="quiz-review-text" class="text-gray-700 leading-relaxed"></p>
+                    </div>
+
+                    <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+                        <button onclick="restartQuiz()" class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow transition">
+                            🔄 Ulangi Kuis
+                        </button>
+                        <button onclick="openCertificateModal()" class="bg-goldCustom hover:bg-goldCustom-hover text-emeraldCustom-dark px-6 py-2.5 rounded-xl text-sm font-extrabold shadow-md transition flex items-center justify-center gap-2">
+                            <span>📜 Lihat & Unduh Sertifikat</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL SERTIFIKAT KELULUSAN -->
+    <div id="cert-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white max-w-2xl w-full rounded-2xl p-4 md:p-6 relative my-8 border-4 border-goldCustom shadow-2xl">
+            <button onclick="closeCertificateModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black font-bold text-xl p-1">✕</button>
+
+            <h3 class="text-center font-bold text-emeraldCustom text-lg mb-3">Sertifikat Kelulusan Pembelajaran SKI</h3>
+
+            <div id="certificate-card" class="bg-creamCustom cert-border p-6 md:p-8 text-center text-gray-800 space-y-4 relative overflow-hidden rounded-lg">
+                <div class="text-center">
+                    <span class="text-3xl">🕌</span>
+                    <h2 class="text-xl md:text-2xl font-extrabold text-emeraldCustom uppercase tracking-wide mt-1">Sertifikat Penghargaan</h2>
+                    <p class="text-[11px] text-gray-500 font-semibold uppercase tracking-widest border-b-2 border-goldCustom inline-block pb-1">Media Pembelajaran SKI Kelas X MA</p>
+                </div>
+
+                <div class="space-y-1 py-2">
+                    <p class="text-xs text-gray-600">Diberikan Kepada Siswa/I:</p>
+                    <h3 id="cert-student-name" class="text-xl md:text-2xl font-black text-emeraldCustom-dark underline decoration-goldCustom">Nama Siswa</h3>
+                    <p id="cert-student-class" class="text-xs font-bold text-gray-600">Kelas: X A | NIS: 12345</p>
+                </div>
+
+                <p class="text-xs text-gray-700 leading-relaxed max-w-lg mx-auto">
+                    Telah menyelesaikan media pembelajaran interaktif Sejarah Kebudayaan Islam materi <br>
+                    <strong class="text-emeraldCustom">“Dakwah Nabi Muhammad Saw. secara Sembunyi-Sembunyi (Sirriyah)”</strong> <br>
+                    dengan hasil evaluasi sebagai berikut:
+                </p>
+
+                <div class="flex justify-center items-center gap-6 py-2 bg-white rounded-xl border border-goldCustom/40 max-w-xs mx-auto">
+                    <div>
+                        <span class="block text-[10px] text-gray-500 font-bold uppercase">Skor Kuis</span>
+                        <span id="cert-score" class="text-xl font-black text-emeraldCustom">100 / 100</span>
+                    </div>
+                    <div class="border-l h-8 border-gray-300"></div>
+                    <div>
+                        <span class="block text-[10px] text-gray-500 font-bold uppercase">Predikat</span>
+                        <span id="cert-predicate" class="text-sm font-extrabold text-goldCustom-hover">Sangat Baik</span>
+                    </div>
+                </div>
+
+                <div class="pt-6 flex justify-between items-end text-left text-xs border-t border-gray-200">
+                    <div>
+                        <p class="text-[10px] text-gray-500">Tanggal Penyelesaian:</p>
+                        <p id="cert-date" class="font-bold text-gray-700"></p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] text-gray-500">Guru Pengampu SKI,</p>
+                        <div class="h-10 flex items-center justify-center font-serif text-emeraldCustom font-bold text-sm italic">Syafii, S.Pd.I.</div>
+                        <p class="font-bold text-gray-800 border-t border-gray-400 pt-0.5">Syafii, S.Pd.I.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
+                <button onclick="downloadCertificateJPG()" class="bg-emeraldCustom hover:bg-emeraldCustom-dark text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow transition flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>Simpan / Unduh Gambar (JPG)</span>
+                </button>
+                <button onclick="closeCertificateModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2.5 rounded-xl text-sm font-bold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CANVAS TERSEMBUNYI UNTUK GENERATE JPG -->
+    <canvas id="cert-canvas" class="hidden"></canvas>
+
+    <!-- FOOTER & REFLEKSI -->
+    <footer class="bg-emeraldCustom-dark text-white border-t-4 border-goldCustom mt-10">
+        <div class="max-w-6xl mx-auto px-4 py-6 text-center space-y-3">
+            <div class="bg-emeraldCustom/60 max-w-2xl mx-auto p-4 rounded-xl border border-goldCustom/30 text-xs md:text-sm italic text-goldCustom">
+                "Dakwah yang baik dimulai dari keteladanan, kelembutan, dan kesabaran."
+            </div>
+            <p class="text-xs text-emerald-200">
+                Presensi Digital & Media Pembelajaran Interaktif Sejarah Kebudayaan Islam (SKI) | Kelas X MA | Kurikulum Merdeka
+            </p>
+        </div>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT SYSTEM LOGIC ==================== -->
+    <script>
+        const DATA_SISWA = [
+            { nis: "12345", nama: "Ahmad Fauzi", kelas: "X A" },
+            { nis: "12346", nama: "Siti Aisyah", kelas: "X B" },
+            { nis: "10001", nama: "Muhammad Rizky", kelas: "X A" },
+            { nis: "10002", nama: "Nur Khadijah", kelas: "X B" },
+            { nis: "10003", nama: "Farhan Ali", kelas: "X C" }
+        ];
+
+        let currentStudent = null;
+        let activeSession = null;
+        let attendanceLogs = [];
+        let userProgress = {
+            presence: false,
+            materi: false,
+            video: false,
+            simulasi: false,
+            quizCompleted: false,
+            quizScore: 0
+        };
+
+        function getTodayString() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function loadSystemData() {
+            const today = getTodayString();
+            
+            const savedSession = localStorage.getItem(`ski_session_${today}`);
+            if (savedSession) {
+                activeSession = JSON.parse(savedSession);
+            } else {
+                activeSession = {
+                    date: today,
+                    code: "SKI1030",
+                    subject: "SKI",
+                    targetClass: "Semua",
+                    deadline: "07:30"
+                };
+                localStorage.setItem(`ski_session_${today}`, JSON.stringify(activeSession));
+            }
+
+            const savedLogs = localStorage.getItem(`ski_logs_${today}_${activeSession.code}`);
+            if (savedLogs) {
+                attendanceLogs = JSON.parse(savedLogs);
+            }
+
+            updateSessionBanner();
+            checkExistingStudentSession();
+        }
+
+        function updateSessionBanner() {
+            if (!activeSession) return;
+            document.getElementById('session-code-display').innerText = `Kode: ${activeSession.code}`;
+            document.getElementById('session-time-display').innerText = `Batas: ${activeSession.deadline}`;
+            document.getElementById('session-class-display').innerText = `Kelas: ${activeSession.targetClass}`;
+            
+            document.getElementById('setup-code').value = activeSession.code;
+            document.getElementById('setup-class').value = activeSession.targetClass;
+            document.getElementById('setup-deadline').value = activeSession.deadline;
+        }
+
+        function fillNis(val) {
+            document.getElementById('nis-input').value = val;
+            if (activeSession) {
+                document.getElementById('code-input').value = activeSession.code;
+            }
+        }
+
+        function togglePermissionReason(show) {
+            const box = document.getElementById('permission-reason-container');
+            if (show) box.classList.remove('hidden');
+            else box.classList.add('hidden');
+        }
+
+        function handleStudentAttendance(e) {
+            e.preventDefault();
+            const nisInput = document.getElementById('nis-input').value.trim();
+            const codeInput = document.getElementById('code-input').value.trim().toUpperCase();
+            const statusRadio = document.querySelector('input[name="attendance_status"]:checked').value;
+            const reasonInput = document.getElementById('reason-input').value.trim();
+            const errorBox = document.getElementById('login-error');
+            const errorMsg = document.getElementById('login-error-msg');
+
+            if (!activeSession || codeInput !== activeSession.code) {
+                errorMsg.innerText = "Kode presensi tidak valid atau sudah tidak berlaku.";
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const student = DATA_SISWA.find(s => s.nis === nisInput);
+            if (!student) {
+                errorMsg.innerText = "NIS tidak ditemukan. Periksa kembali NIS Anda.";
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            if (activeSession.targetClass !== "Semua" && activeSession.targetClass !== student.kelas) {
+                errorMsg.innerText = `Sesi presensi khusus untuk ${activeSession.targetClass}. Anda di ${student.kelas}.`;
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const today = getTodayString();
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            const existingLog = attendanceLogs.find(l => l.nis === student.nis);
+            if (existingLog) {
+                currentStudent = student;
+                localStorage.setItem('ski_active_student', JSON.stringify(student));
+                showAttendanceTicket(student, existingLog, true);
+                return;
+            }
+
+            let finalStatus = statusRadio;
+            if (statusRadio === "Hadir") {
+                const deadlineParts = activeSession.deadline.split(':');
+                const deadlineTime = new Date();
+                deadlineTime.setHours(parseInt(deadlineParts[0]), parseInt(deadlineParts[1]), 0);
+                if (now > deadlineTime) finalStatus = "Terlambat";
+            }
+
+            const newLog = {
+                nis: student.nis,
+                nama: student.nama,
+                kelas: student.kelas,
+                timestamp: `${now.toLocaleDateString('id-ID')} ${timeStr}`,
+                timeOnly: timeStr,
+                status: finalStatus,
+                keterangan: (finalStatus === "Izin" || finalStatus === "Sakit") ? reasonInput : "-",
+                code: activeSession.code
+            };
+
+            attendanceLogs.push(newLog);
+            localStorage.setItem(`ski_logs_${today}_${activeSession.code}`, JSON.stringify(attendanceLogs));
+
+            currentStudent = student;
+            localStorage.setItem('ski_active_student', JSON.stringify(student));
+
+            showAttendanceTicket(student, newLog, false);
+        }
+
+        function showAttendanceTicket(student, log, isAlready) {
+            document.getElementById('ticket-student-info').innerText = `${student.nama} (${student.kelas})`;
+            document.getElementById('ticket-nis').innerText = student.nis;
+            document.getElementById('ticket-datetime').innerText = log.timestamp;
+            document.getElementById('ticket-session').innerText = log.code;
+
+            const badge = document.getElementById('ticket-status-badge');
+            badge.innerText = log.status.toUpperCase();
+            
+            if (log.status === "Hadir") badge.className = "px-3 py-1 rounded-full font-extrabold text-white bg-emerald-600";
+            else if (log.status === "Terlambat") badge.className = "px-3 py-1 rounded-full font-extrabold text-white bg-amber-600";
+            else if (log.status === "Izin") badge.className = "px-3 py-1 rounded-full font-extrabold text-white bg-blue-600";
+            else if (log.status === "Sakit") badge.className = "px-3 py-1 rounded-full font-extrabold text-white bg-rose-600";
+
+            userProgress.presence = true;
+            updateDashboardUI();
+
+            if (isAlready) {
+                alert(`Anda sudah presensi pada pukul ${log.timeOnly} dengan status: ${log.status}`);
+            }
+
+            document.getElementById('attendance-card-modal').classList.remove('hidden');
+        }
+
+        function openAttendanceCardModal() {
+            if (!currentStudent) return;
+            const log = attendanceLogs.find(l => l.nis === currentStudent.nis);
+            if (log) showAttendanceTicket(currentStudent, log, false);
+        }
+
+        function enterLearningMedia() {
+            document.getElementById('attendance-card-modal').classList.add('hidden');
+            document.getElementById('login-modal').classList.add('hidden');
+            applyLoginState();
+        }
+
+        function applyLoginState() {
+            if (!currentStudent) return;
+
+            document.getElementById('hero-student-name').innerText = currentStudent.nama;
+            document.getElementById('hero-student-nis').innerText = currentStudent.nis;
+            document.getElementById('hero-student-class').innerText = currentStudent.kelas;
+
+            document.getElementById('bento-student-name').innerText = currentStudent.nama;
+            document.getElementById('bento-student-info').innerText = `NIS: ${currentStudent.nis} | ${currentStudent.kelas}`;
+
+            document.getElementById('sim-welcome-msg').innerText = `Selamat datang, ${currentStudent.nama} (${currentStudent.kelas}). Mari jalankan simulasi dakwah sirriyah.`;
+
+            loadStudentProgress();
+            updateDashboardUI();
+        }
+
+        function loadStudentProgress() {
+            if (!currentStudent) return;
+            const savedProg = localStorage.getItem(`ski_progress_${currentStudent.nis}`);
+            if (savedProg) {
+                userProgress = JSON.parse(savedProg);
+            } else {
+                userProgress.presence = true;
+                saveProgress();
+            }
+        }
+
+        function saveProgress() {
+            if (!currentStudent) return;
+            localStorage.setItem(`ski_progress_${currentStudent.nis}`, JSON.stringify(userProgress));
+        }
+
+        function updateDashboardUI() {
+            // Calculate Progress Percentage
+            let count = 1; // Presence done
+            if (userProgress.materi) count++;
+            if (userProgress.video) count++;
+            if (userProgress.simulasi) count++;
+            if (userProgress.quizCompleted) count++;
+
+            const pct = Math.round((count / 5) * 100);
+            document.getElementById('hero-progress-num').innerText = `${pct}%`;
+            document.getElementById('hero-progress-bar').style.width = `${pct}%`;
+
+            // Update Pathway UI
+            if (userProgress.materi) {
+                document.getElementById('step-2-icon').className = "w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-md border-2 border-goldCustom";
+                document.getElementById('step-2-icon').innerText = "✓";
+                document.getElementById('step-2-status').innerText = "Selesai";
+                document.getElementById('step-2-status').className = "text-[10px] font-bold text-emerald-700";
+            }
+
+            if (userProgress.video) {
+                document.getElementById('step-3-icon').className = "w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-md border-2 border-goldCustom";
+                document.getElementById('step-3-icon').innerText = "✓";
+                document.getElementById('step-3-status').innerText = "Selesai";
+                document.getElementById('step-3-status').className = "text-[10px] font-bold text-emerald-700";
+            }
+
+            if (userProgress.simulasi) {
+                document.getElementById('step-4-icon').className = "w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-md border-2 border-goldCustom";
+                document.getElementById('step-4-icon').innerText = "✓";
+                document.getElementById('step-4-status').innerText = "Selesai";
+                document.getElementById('step-4-status').className = "text-[10px] font-bold text-emerald-700";
+            }
+
+            if (userProgress.quizCompleted) {
+                document.getElementById('step-5-icon').className = "w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-md border-2 border-goldCustom";
+                document.getElementById('step-5-icon').innerText = "✓";
+                document.getElementById('step-5-status').innerText = "Selesai";
+                document.getElementById('step-5-status').className = "text-[10px] font-bold text-emerald-700";
+
+                document.getElementById('step-6-icon').className = "w-12 h-12 rounded-full bg-goldCustom text-emeraldCustom-dark flex items-center justify-center font-bold text-lg shadow-md pulse-active border-2 border-emeraldCustom";
+                document.getElementById('step-6-icon').innerText = "🎓";
+                document.getElementById('step-6-status').innerText = "Siap Unduh";
+                document.getElementById('step-6-status').className = "text-[10px] font-bold text-amber-700";
+
+                document.getElementById('bento-quiz-score-badge').innerText = `Skor Terakhir: ${userProgress.quizScore}/100`;
+                document.getElementById('bento-quiz-status').innerText = "🟢 Selesai Mengerjakan";
+                document.getElementById('bento-quiz-status').className = "text-[11px] font-bold text-emerald-700";
+            }
+        }
+
+        function resetLoginForm() {
+            document.getElementById('nis-input').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        function logout() {
+            localStorage.removeItem('ski_active_student');
+            currentStudent = null;
+            resetSimulation();
+            restartQuiz();
+            resetLoginForm();
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function checkExistingStudentSession() {
+            const saved = localStorage.getItem('ski_active_student');
+            if (saved) {
+                try {
+                    currentStudent = JSON.parse(saved);
+                    document.getElementById('login-modal').classList.add('hidden');
+                    applyLoginState();
+                } catch(e) {
+                    localStorage.removeItem('ski_active_student');
+                }
+            }
+        }
+
+        function openGuideModal() {
+            document.getElementById('guide-modal').classList.remove('hidden');
+        }
+
+        function closeGuideModal() {
+            document.getElementById('guide-modal').classList.add('hidden');
+        }
+
+        function openGuruModal() {
+            document.getElementById('guru-modal').classList.remove('hidden');
+        }
+
+        function closeGuruModal() {
+            document.getElementById('guru-modal').classList.add('hidden');
+        }
+
+        function verifyGuruPass() {
+            const pass = document.getElementById('guru-pass-input').value;
+            const err = document.getElementById('guru-auth-error');
+
+            if (pass === "guru2026") {
+                err.classList.add('hidden');
+                document.getElementById('guru-auth-section').classList.add('hidden');
+                document.getElementById('guru-dashboard').classList.remove('hidden');
+                renderGuruTable();
+            } else {
+                err.classList.remove('hidden');
+            }
+        }
+
+        function saveSessionSetup() {
+            const today = getTodayString();
+            const code = document.getElementById('setup-code').value.trim().toUpperCase() || "SKI1030";
+            const targetClass = document.getElementById('setup-class').value;
+            const deadline = document.getElementById('setup-deadline').value;
+
+            activeSession = { date: today, code: code, subject: "SKI", targetClass: targetClass, deadline: deadline };
+            localStorage.setItem(`ski_session_${today}`, JSON.stringify(activeSession));
+            updateSessionBanner();
+            alert("Sesi presensi berhasil disimpan!");
+            renderGuruTable();
+        }
+
+        function renderGuruTable() {
+            if (!activeSession) return;
+            const tbody = document.getElementById('guru-recap-tbody');
+            const searchVal = document.getElementById('guru-search').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            let countHadir = 0, countTerlambat = 0, countIzin = 0, countSakit = 0;
+            let targetStudents = DATA_SISWA;
+            if (activeSession.targetClass !== "Semua") {
+                targetStudents = DATA_SISWA.filter(s => s.kelas === activeSession.targetClass);
+            }
+
+            targetStudents.forEach(student => {
+                const log = attendanceLogs.find(l => l.nis === student.nis);
+                const status = log ? log.status : "Belum Absen";
+                const time = log ? log.timestamp : "-";
+                const ket = log ? log.keterangan : "-";
+
+                if (status === "Hadir") countHadir++;
+                else if (status === "Terlambat") countTerlambat++;
+                else if (status === "Izin") countIzin++;
+                else if (status === "Sakit") countSakit++;
+
+                if (searchVal && !student.nama.toLowerCase().includes(searchVal) && !student.nis.includes(searchVal)) return;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-creamCustom transition";
+
+                let statusColor = "bg-gray-100 text-gray-700";
+                if (status === "Hadir") statusColor = "bg-emerald-100 text-emerald-800 font-bold";
+                else if (status === "Terlambat") statusColor = "bg-amber-100 text-amber-800 font-bold";
+                else if (status === "Izin") statusColor = "bg-blue-100 text-blue-800 font-bold";
+                else if (status === "Sakit") statusColor = "bg-rose-100 text-rose-800 font-bold";
+
+                tr.innerHTML = `
+                    <td class="p-2.5 font-mono font-bold">${student.nis}</td>
+                    <td class="p-2.5 font-semibold text-gray-800">${student.nama}</td>
+                    <td class="p-2.5 text-gray-600">${student.kelas}</td>
+                    <td class="p-2.5 text-gray-500">${time}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[11px] ${statusColor}">${status}</span></td>
+                    <td class="p-2.5 text-gray-500 italic max-w-xs truncate">${ket}</td>
+                    <td class="p-2.5 text-center">
+                        <select onchange="changeStudentStatus('${student.nis}', this.value)" class="text-[11px] border rounded px-1.5 py-1 bg-white focus:border-goldCustom">
+                            <option value="" disabled selected>Ubah Status</option>
+                            <option value="Hadir">Hadir</option>
+                            <option value="Terlambat">Terlambat</option>
+                            <option value="Izin">Izin</option>
+                            <option value="Sakit">Sakit</option>
+                            <option value="Alpa">Alpa / Reset</option>
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('stat-hadir').innerText = countHadir;
+            document.getElementById('stat-terlambat').innerText = countTerlambat;
+            document.getElementById('stat-izin').innerText = countIzin;
+            document.getElementById('stat-sakit').innerText = countSakit;
+            document.getElementById('stat-belum').innerText = targetStudents.length - (countHadir + countTerlambat + countIzin + countSakit);
+        }
+
+        function changeStudentStatus(nis, newStatus) {
+            const today = getTodayString();
+            const student = DATA_SISWA.find(s => s.nis === nis);
+            if (!student) return;
+
+            let logIndex = attendanceLogs.findIndex(l => l.nis === nis);
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            if (newStatus === "Alpa") {
+                if (logIndex !== -1) attendanceLogs.splice(logIndex, 1);
+            } else {
+                if (logIndex !== -1) {
+                    attendanceLogs[logIndex].status = newStatus;
+                } else {
+                    attendanceLogs.push({
+                        nis: student.nis, nama: student.nama, kelas: student.kelas,
+                        timestamp: `${now.toLocaleDateString('id-ID')} ${timeStr}`, timeOnly: timeStr,
+                        status: newStatus, keterangan: "Diubah manual oleh guru", code: activeSession.code
+                    });
+                }
+            }
+
+            localStorage.setItem(`ski_logs_${today}_${activeSession.code}`, JSON.stringify(attendanceLogs));
+            renderGuruTable();
+        }
+
+        function resetTodayAttendance() {
+            if (confirm("Hapus seluruh data presensi sesi hari ini?")) {
+                const today = getTodayString();
+                attendanceLogs = [];
+                localStorage.removeItem(`ski_logs_${today}_${activeSession.code}`);
+                renderGuruTable();
+            }
+        }
+
+        function copyRecapClipboard() {
+            let text = `REKAP PRESENSI DIGITAL SKI KELAS X\nTanggal: ${getTodayString()} | Kode Sesi: ${activeSession.code}\n\nNIS\tNama\tKelas\tWaktu\tStatus\tKeterangan\n`;
+            DATA_SISWA.forEach(s => {
+                const log = attendanceLogs.find(l => l.nis === s.nis);
+                text += `${s.nis}\t${s.nama}\t${s.kelas}\t${log ? log.timestamp : '-'}\t${log ? log.status : 'Belum Absen'}\t${log ? log.keterangan : '-'}\n`;
+            });
+            navigator.clipboard.writeText(text).then(() => alert("Rekap disalin ke clipboard!"));
+        }
+
+        function downloadRecapCSV() {
+            let csv = `NIS,Nama Siswa,Kelas,Waktu Presensi,Status,Keterangan\n`;
+            DATA_SISWA.forEach(s => {
+                const log = attendanceLogs.find(l => l.nis === s.nis);
+                csv += `"${s.nis}","${s.nama}","${s.kelas}","${log ? log.timestamp : '-'}","${log ? log.status : 'Belum Absen'}","${log ? log.keterangan : '-'}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Rekap_Presensi_SKI_${getTodayString()}.csv`;
+            link.click();
+        }
+
+        function switchTab(tabName) {
+            const tabs = ['beranda', 'materi', 'simulasi', 'kuis'];
+            tabs.forEach(t => {
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+
+            document.getElementById(`sec-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'materi') {
+                userProgress.materi = true;
+                saveProgress();
+                updateDashboardUI();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToVideo() {
+            switchTab('beranda');
+            document.getElementById('video-section').scrollIntoView({ behavior: 'smooth' });
+            userProgress.video = true;
+            saveProgress();
+            updateDashboardUI();
+        }
+
+        function playVideoPlaceholder() {
+            alert("Memutar Video Pembelajaran: Dakwah Sirriyah Rasulullah Saw.\n\nSiswa dapat menyimak narasi strategi pembinaan umat awal Makkah.");
+            userProgress.video = true;
+            saveProgress();
+            updateDashboardUI();
+        }
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById(`icon-${id}`);
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                icon.innerText = '+';
+            } else {
+                content.classList.add('active');
+                icon.innerText = '-';
+            }
+        }
+
+        const simCharacters = [
+            {
+                name: "Keluarga Dekat", title: "Pendekatan Keluarga Dekat", subtitle: "Kerabat bertanya tentang perubahan peribadatan", icon: "🏡",
+                question: "Mengapa kita harus meninggalkan ajaran nenek moyang dan menyembah Tuhan yang tidak kelihatan?",
+                options: [
+                    { text: "Menjelaskan dengan santun bahwa Allah Swt. Maha Menciptakan langit dan bumi, sementara berhala tidak dapat memberi manfaat atau bahaya.", feedback: "Sangat Tepat! Pendekatan keteladanan dan kasih sayang menyentuh hati keluarga.", scores: { iman: 10, berani: 5, satu: 10 }, correct: true },
+                    { text: "Menjelaskan secara keras bahwa ajaran nenek moyang adalah sesat dan berhala harus segera dihancurkan.", feedback: "Kurang Tepat. Sikap keras menimbulkan penolakan emosional dari keluarga.", scores: { iman: 5, berani: 5, satu: 0 }, correct: false },
+                    { text: "Menghindari pertanyaan dan beribadah secara diam-diam tanpa memberikan penjelasan apapun.", feedback: "Kurang Tepat. Penjelasan penuh hikmah tetap diperlukan.", scores: { iman: 5, berani: 0, satu: 5 }, correct: false }
+                ]
+            },
+            {
+                name: "Sahabat Karib", title: "Diskusi Tokoh Sahabat Karib", subtitle: "Sahabat kepercayaan meminta kejujuran", icon: "🤝",
+                question: "Aku melihat engkau berkumpul secara rahasia. Ajaran apa yang sedang engkau ikuti?",
+                options: [
+                    { text: "Mengajaknya berdiskusi empat mata secara bertahap, menyampaikan indahnya kejujuran, tauhid, dan persamaan derajat dalam Islam.", feedback: "Sangat Tepat! Kepercayaan sahabat karib adalah pintu masuk dakwah sirriyah yang efektif.", scores: { iman: 10, berani: 10, satu: 10 }, correct: true },
+                    { text: "Memintanya bersumpah menjaga rahasia dahulu, lalu memaksanya langsung masuk Islam hari itu juga.", feedback: "Kurang Tepat. Dakwah memerlukan kesadaran dan keikhlasan hati.", scores: { iman: 5, berani: 5, satu: 2 }, correct: false },
+                    { text: "Merahasiakannya sepenuhnya dan mengatakan bahwa tidak ada kegiatan apapun.", feedback: "Kurang Tepat. Menolak sahabat dekat mengurangi rasa percaya.", scores: { iman: 2, berani: 0, satu: 2 }, correct: false }
+                ]
+            },
+            {
+                name: "Pemuda Quraisy", title: "Dialog Pemuda Mencari Kebenaran", subtitle: "Pemuda Makkah yang kritis terhadap ketidakadilan", icon: "🏹",
+                question: "Tradisi suku kita membeda-bedakan bangsawan dan budak. Apakah Islam menawarkan keadilan?",
+                options: [
+                    { text: "Menjelaskan bahwa di mata Allah semua manusia adalah sederajat, yang membedakan hanyalah ketakwaan dan akhlaknya.", feedback: "Sangat Tepat! Prinsip kesetaraan menjadi daya tarik besar bagi pemuda.", scores: { iman: 10, berani: 10, satu: 8 }, correct: true },
+                    { text: "Menyarankan agar pemuda fokus saja pada urusan sendiri.", feedback: "Kurang Tepat. Islam membawa misi kepedulian sosial.", scores: { iman: 2, berani: 2, satu: 0 }, correct: false },
+                    { text: "Mengajaknya langsung memprotes para pemuka Quraisy secara terbuka.", feedback: "Kurang Tepat. Konfrontasi terbuka belum waktunya pada masa sirriyah.", scores: { iman: 5, berani: 10, satu: 2 }, correct: false }
+                ]
+            },
+            {
+                name: "Masyarakat Makkah", title: "Keingintahuan Rumah Pembinaan", subtitle: "Masyarakat bertanya tentang fungsi Rumah Arqam", icon: "🏛️",
+                question: "Mengapa kalian berkumpul secara khusus di rumah Arqam bin Abi al-Arqam?",
+                options: [
+                    { text: "Menjelaskan bahwa rumah Arqam adalah tempat belajar kebaikan, kedamaian, dan tazkiyatun nufus secara tertib.", feedback: "Sangat Tepat! Menggambarkan Darul Arqam sebagai pusat pendidikan moral.", scores: { iman: 10, berani: 8, satu: 10 }, correct: true },
+                    { text: "Mengatakan itu adalah perkumpulan rahasia untuk merebut Makkah.", feedback: "Salah! Dakwah bukan gerakan kekerasan.", scores: { iman: 0, berani: 5, satu: 0 }, correct: false },
+                    { text: "Mewaspadai panya dan melarang siapapun mendekati rumah Arqam.", feedback: "Kurang Tepat. Sikap curiga memicu prasangka buruk.", scores: { iman: 2, berani: 0, satu: 2 }, correct: false }
+                ]
+            }
+        ];
+
+        let simState = { completed: [false, false, false, false], scores: { iman: 0, berani: 0, satu: 0 }, activeIdx: null };
+
+        function selectCharacter(idx) {
+            if (simState.completed[idx]) return;
+            simState.activeIdx = idx;
+            const data = simCharacters[idx];
+
+            document.getElementById('dialog-area').classList.remove('hidden');
+            document.getElementById('dialog-icon').innerText = data.icon;
+            document.getElementById('dialog-title').innerText = data.title;
+            document.getElementById('dialog-subtitle').innerText = data.subtitle;
+            document.getElementById('dialog-question').innerText = `"${data.question}"`;
+            document.getElementById('dialog-feedback').classList.add('hidden');
+            document.getElementById('dialog-next-btn').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('dialog-options');
+            optionsContainer.innerHTML = '';
+
+            data.options.forEach((opt, oIdx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-lg border border-gray-200 bg-white hover:bg-emerald-50 text-xs md:text-sm font-medium transition flex items-start gap-2";
+                btn.innerHTML = `<span class="bg-emerald-100 text-emeraldCustom rounded-full w-5 h-5 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">${String.fromCharCode(65+oIdx)}</span> <span>${opt.text}</span>`;
+                btn.onclick = () => answerDialog(oIdx);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('dialog-area').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function answerDialog(optionIdx) {
+            const charData = simCharacters[simState.activeIdx];
+            const selectedOpt = charData.options[optionIdx];
+
+            simState.scores.iman += selectedOpt.scores.iman;
+            simState.scores.berani += selectedOpt.scores.berani;
+            simState.scores.satu += selectedOpt.scores.satu;
+
+            document.getElementById('score-iman').innerText = simState.scores.iman;
+            document.getElementById('score-berani').innerText = simState.scores.berani;
+            document.getElementById('score-satu').innerText = simState.scores.satu;
+
+            const fbBox = document.getElementById('dialog-feedback');
+            fbBox.classList.remove('hidden');
+            fbBox.className = selectedOpt.correct ? "mt-4 p-4 rounded-lg text-xs md:text-sm bg-emerald-100 text-emerald-900 border border-emerald-300" : "mt-4 p-4 rounded-lg text-xs md:text-sm bg-amber-100 text-amber-900 border border-amber-300";
+            fbBox.innerHTML = `<strong>Umpan Balik Edukatif:</strong> ${selectedOpt.feedback}`;
+
+            document.getElementById('dialog-options').querySelectorAll('button').forEach(btn => btn.disabled = true);
+
+            simState.completed[simState.activeIdx] = true;
+            const statusElem = document.getElementById(`status-${simState.activeIdx}`);
+            statusElem.innerText = "Selesai";
+            statusElem.className = "mt-2 inline-block text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold";
+
+            document.getElementById('dialog-next-btn').classList.remove('hidden');
+        }
+
+        function closeDialog() {
+            document.getElementById('dialog-area').classList.add('hidden');
+            if (simState.completed.every(val => val === true)) finishSimulation();
+        }
+
+        function finishSimulation() {
+            document.getElementById('sim-main-container').classList.add('hidden');
+            document.getElementById('sim-result-container').classList.remove('hidden');
+
+            const name = currentStudent ? currentStudent.nama : "Siswa";
+            document.getElementById('sim-result-student').innerText = `Selamat ${name}, Anda telah menyelesaikan simulasi dakwah!`;
+
+            userProgress.simulasi = true;
+            saveProgress();
+            updateDashboardUI();
+        }
+
+        function resetSimulation() {
+            simState = { completed: [false, false, false, false], scores: { iman: 0, berani: 0, satu: 0 }, activeIdx: null };
+            document.getElementById('score-iman').innerText = "0";
+            document.getElementById('score-berani').innerText = "0";
+            document.getElementById('score-satu').innerText = "0";
+
+            for (let i = 0; i < 4; i++) {
+                const statusElem = document.getElementById(`status-${i}`);
+                statusElem.innerText = "Belum Diajak";
+                statusElem.className = "mt-2 inline-block text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold";
+            }
+
+            document.getElementById('dialog-area').classList.add('hidden');
+            document.getElementById('sim-result-container').classList.add('hidden');
+            document.getElementById('sim-main-container').classList.remove('hidden');
+        }
+
+        const quizDataMaster = [
+            { question: "Wahyu Al-Qur'an yang menjadi landasan perintah awal dakwah Rasulullah Saw. adalah...", options: ["Q.S. Al-Muddassir [74]: 1-7", "Q.S. Al-Hijr [15]: 94", "Q.S. Al-Fatihah [1]: 1-7", "Q.S. Al-Baqarah [2]: 183"], answer: 0, explanation: "Q.S. Al-Muddassir ayat 1-7 berisi perintah 'Wahai orang yang berkelimut, bangunlah lalu berilah peringatan!'." },
+            { question: "Durasi pelaksanaan dakwah Nabi Muhammad Saw. secara sembunyi-sembunyi (sirriyah) di Makkah adalah...", options: ["Sekitar 3 Tahun", "Sekitar 5 Tahun", "Sekitar 10 Tahun", "Sekitar 1 Tahun"], answer: 0, explanation: "Dakwah sirriyah berlangsung kurang lebih selama 3 tahun." },
+            { question: "Wanita pertama yang menyatakan keimanan dan memeluk Islam adalah...", options: ["Khadijah binti Khuwailid r.a.", "Aisyah binti Abu Bakar r.a.", "Fatimah az-Zahra r.a.", "Sumayyah binti Khayyat r.a."], answer: 0, explanation: "Siti Khadijah binti Khuwailid r.a. adalah orang pertama dari kalangan wanita yang masuk Islam." },
+            { question: "Pusat pembinaan akidah umat Islam pertama pada periode Makkah adalah...", options: ["Rumah Arqam bin Abi al-Arqam", "Rumah Abu Bakar ash-Shiddiq", "Rumah Ali bin Abi Thalib", "Rumah Utsman bin Affan"], answer: 0, explanation: "Darul Arqam dipilih sebagai madrasah pertama kaum muslimin awal." },
+            { question: "Golongan anak-anak/pemuda pertama yang memeluk Islam adalah...", options: ["Ali bin Abi Thalib r.a.", "Zaid bin Haritsah r.a.", "Usamah bin Zaid r.a.", "Abdullah bin Mas'ud r.a."], answer: 0, explanation: "Ali bin Abi Thalib r.a. memeluk Islam pada usia sangat muda (sekitar 10 tahun)." },
+            { question: "Berikut ini BUKAN alasan dakwah dilakukan secara sembunyi-sembunyi adalah...", options: ["Rasa takut Rasulullah Saw. terhadap ancaman kaum Quraisy", "Jumlah umat Islam yang masih sangat sedikit", "Menghindari pemusnahan massal dari penguasa Makkah", "Fokus memperkuat akidah kader awal"], answer: 0, explanation: "Rasulullah Saw. tidak pernah takut, melainkan strategi kearifan pembinaan internal." },
+            { question: "Materi utama fokus ajaran dakwah periode Makkah adalah...", options: ["Pemurnian tauhid, perbaikan akhlak, dan hari akhir", "Hukum waris dan tata cara zakat", "Strategi militer perang", "Sistem tata negara birokrasi"], answer: 0, explanation: "Materi periode Makkah berfokus pada akidah tauhid dan penyucian akhlak." },
+            { question: "Tokoh sahabat yang masuk Islam melalui pendekatan Abu Bakar ash-Shiddiq r.a. adalah...", options: ["Utsman bin Affan r.a. dan Zubair bin Awwam r.a.", "Umar bin Khattab r.a. dan Hamzah r.a.", "Abu Hurairah r.a. dan Khalid bin Walid r.a.", "Bilal bin Rabah r.a."], answer: 0, explanation: "Utsman bin Affan dan Zubair bin Awwam masuk Islam melalui dakwah Abu Bakar r.a." },
+            { question: "Ayat Al-Qur'an perintah peralihan ke dakwah terang-terangan (jahriyah) adalah...", options: ["Q.S. Al-Hijr [15]: 94", "Q.S. Al-'Alaq [96]: 1-5", "Q.S. An-Nasr [110]: 1-3", "Q.S. Al-Ahzab [33]: 21"], answer: 0, explanation: "Q.S. Al-Hijr ayat 94 memerintahkan menyampaikan risalah secara terang-terangan." },
+            { question: "Gelar 'Assabiqunal Awwalun' diberikan kepada...", options: ["Orang-orang yang pertama kali memeluk agama Islam", "Pasukan Perang Badar", "Penduduk Yatsrib pembela Nabi", "Para penghafal Al-Qur'an"], answer: 0, explanation: "Assabiqunal Awwalun berarti orang-orang pertama yang masuk Islam." }
+        ];
+
+        let quizCurrentIdx = 0, quizScore = 0, quizQuestions = [];
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initQuiz() {
+            quizCurrentIdx = 0; quizScore = 0;
+            quizQuestions = quizDataMaster.map(item => {
+                let optsWithIdx = item.options.map((opt, idx) => ({ text: opt, origIdx: idx }));
+                let shuffled = shuffleArray(optsWithIdx);
+                return {
+                    question: item.question,
+                    options: shuffled.map(o => o.text),
+                    answer: shuffled.findIndex(o => o.origIdx === item.answer),
+                    explanation: item.explanation
+                };
+            });
+            quizQuestions = shuffleArray(quizQuestions);
+            document.getElementById('quiz-result-container').classList.add('hidden');
+            document.getElementById('quiz-question-container').classList.remove('hidden');
+            document.getElementById('quiz-header').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = quizQuestions[quizCurrentIdx];
+            document.getElementById('quiz-progress-text').innerText = `Soal ${quizCurrentIdx + 1} dari ${quizQuestions.length}`;
+            document.getElementById('quiz-score-badge').innerText = `Skor: ${quizScore}`;
+            document.getElementById('quiz-progress-bar').style.width = `${((quizCurrentIdx + 1) / quizQuestions.length) * 100}%`;
+            document.getElementById('quiz-question-text').innerText = `${quizCurrentIdx + 1}. ${q.question}`;
+
+            const optsContainer = document.getElementById('quiz-options-container');
+            optsContainer.innerHTML = '';
+
+            q.options.forEach((optText, oIdx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3.5 rounded-xl border-2 border-gray-200 bg-white hover:border-emeraldCustom hover:bg-emerald-50 text-xs md:text-sm font-medium transition flex items-center gap-3";
+                btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center text-xs font-bold">${String.fromCharCode(65 + oIdx)}</span> <span>${optText}</span>`;
+                btn.onclick = () => checkAnswer(oIdx);
+                optsContainer.appendChild(btn);
+            });
+
+            document.getElementById('quiz-feedback-box').classList.add('hidden');
+            document.getElementById('quiz-next-container').classList.add('hidden');
+        }
+
+        function checkAnswer(selectedIdx) {
+            const q = quizQuestions[quizCurrentIdx];
+            const buttons = document.getElementById('quiz-options-container').querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const isCorrect = (selectedIdx === q.answer);
+            if (isCorrect) {
+                quizScore += 10;
+                buttons[selectedIdx].classList.add('border-emerald-600', 'bg-emerald-100', 'text-emerald-900');
+            } else {
+                buttons[selectedIdx].classList.add('border-red-500', 'bg-red-50', 'text-red-900');
+                buttons[q.answer].classList.add('border-emerald-600', 'bg-emerald-100', 'text-emerald-900');
+            }
+
+            const fbBox = document.getElementById('quiz-feedback-box');
+            fbBox.classList.remove('hidden');
+            fbBox.className = isCorrect ? "p-4 rounded-xl text-xs md:text-sm leading-relaxed mt-4 bg-emerald-100 text-emerald-900 border border-emerald-300" : "p-4 rounded-xl text-xs md:text-sm leading-relaxed mt-4 bg-red-50 text-red-900 border border-red-200";
+            document.getElementById('quiz-feedback-title').innerText = isCorrect ? "✅ Jawaban Anda Benar!" : "❌ Jawaban Belum Tepat.";
+            document.getElementById('quiz-feedback-text').innerText = q.explanation;
+            document.getElementById('quiz-score-badge').innerText = `Skor: ${quizScore}`;
+            document.getElementById('quiz-next-container').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            quizCurrentIdx++;
+            if (quizCurrentIdx < quizQuestions.length) showQuestion();
+            else finishQuiz();
+        }
+
+        function finishQuiz() {
+            document.getElementById('quiz-question-container').classList.add('hidden');
+            document.getElementById('quiz-header').classList.add('hidden');
+            document.getElementById('quiz-result-container').classList.remove('hidden');
+
+            const name = currentStudent ? currentStudent.nama : "Siswa";
+            document.getElementById('quiz-final-student').innerText = `Skor akhir ${name}:`;
+            document.getElementById('quiz-final-score').innerText = `${quizScore} / 100`;
+
+            userProgress.quizCompleted = true;
+            userProgress.quizScore = quizScore;
+            saveProgress();
+            updateDashboardUI();
+        }
+
+        function restartQuiz() { initQuiz(); }
+
+        function openCertificateModal() {
+            const name = currentStudent ? currentStudent.nama : "Nama Siswa";
+            const studentClass = currentStudent ? currentStudent.kelas : "X";
+            const nis = currentStudent ? currentStudent.nis : "-";
+
+            document.getElementById('cert-student-name').innerText = name;
+            document.getElementById('cert-student-class').innerText = `Kelas: ${studentClass} | NIS: ${nis}`;
+            document.getElementById('cert-score').innerText = `${quizScore} / 100`;
+
+            let pred = "Cukup (Maqbul)";
+            if (quizScore >= 90) pred = "Sangat Baik (Mumtaz)";
+            else if (quizScore >= 70) pred = "Baik (Jayyid)";
+
+            document.getElementById('cert-predicate').innerText = pred;
+            document.getElementById('cert-date').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('cert-modal').classList.remove('hidden');
+        }
+
+        function closeCertificateModal() {
+            document.getElementById('cert-modal').classList.add('hidden');
+        }
+
+        function downloadCertificateJPG() {
+            const canvas = document.getElementById('cert-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1200; canvas.height = 850;
+
+            ctx.fillStyle = "#FAF9F5"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "#D4AF37"; ctx.lineWidth = 12; ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+            ctx.lineWidth = 4; ctx.strokeRect(48, 48, canvas.width - 96, canvas.height - 96);
+
+            ctx.fillStyle = "#0F5132"; ctx.fillRect(52, 52, canvas.width - 104, 120);
+            ctx.fillStyle = "#D4AF37"; ctx.font = "bold 36px 'Segoe UI', sans-serif"; ctx.textAlign = "center";
+            ctx.fillText("SERTIFIKAT PENGHARGAAN", canvas.width / 2, 110);
+            ctx.fillStyle = "#FFFFFF"; ctx.font = "18px 'Segoe UI', sans-serif";
+            ctx.fillText("MEDIA PEMBELAJARAN INTERAKTIF SKI KELAS X MA", canvas.width / 2, 145);
+
+            ctx.fillStyle = "#0A3622"; ctx.font = "bold 22px 'Segoe UI', sans-serif";
+            ctx.fillText("Materi: Dakwah Nabi Muhammad Saw. Secara Sembunyi-Sembunyi (Sirriyah)", canvas.width / 2, 220);
+
+            const name = currentStudent ? currentStudent.nama : "Nama Siswa";
+            const studentClass = currentStudent ? currentStudent.kelas : "X";
+            const nis = currentStudent ? currentStudent.nis : "-";
+
+            ctx.fillStyle = "#0F5132"; ctx.font = "bold 44px 'Segoe UI', sans-serif"; ctx.fillText(name, canvas.width / 2, 340);
+            ctx.fillStyle = "#333333"; ctx.font = "bold 20px 'Segoe UI', sans-serif";
+            ctx.fillText(`Kelas: ${studentClass}  |  NIS: ${nis}`, canvas.width / 2, 380);
+
+            ctx.fillStyle = "#FFFFFF"; ctx.strokeStyle = "#D4AF37"; ctx.lineWidth = 2;
+            ctx.fillRect(400, 480, 400, 100); ctx.strokeRect(400, 480, 400, 100);
+            ctx.fillStyle = "#0F5132"; ctx.font = "bold 32px 'Segoe UI', sans-serif";
+            ctx.fillText(`${quizScore}/100`, 500, 555);
+
+            const imageURI = canvas.toDataURL("image/jpeg", 0.9);
+            const link = document.createElement('a');
+            link.download = `Sertifikat_SKI_${name.replace(/\s+/g, '_')}.jpg`;
+            link.href = imageURI;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        window.onload = function() {
+            loadSystemData();
+            initQuiz();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Pembelajaran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emeraldCustom: {
+                            DEFAULT: '#0F5132',
+                            dark: '#0A3622',
+                            light: '#198754',
+                            subtle: '#D1E7DD'
+                        },
+                        goldCustom: {
+                            DEFAULT: '#D4AF37',
+                            hover: '#AA820A',
+                            light: '#FFF8DC'
+                        },
+                        creamCustom: '#FAF9F5'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #988c5a;
+            color: #212529;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+        .bento-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(15, 81, 50, 0.12);
+        }
+        .gold-border { border-color: #D4AF37; }
+        .tab-btn.active {
+            background-color: #D4AF37;
+            color: #0F5132;
+            font-weight: bold;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+        }
+        .accordion-content.active { max-height: 1000px; }
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .cert-border { border: 12px double #D4AF37; }
+        .pulse-active { animation: pulse-ring 2s infinite; }
+        .cert-border { border: 12px double #D4AF37; }
+    </style>
+
+</head>
+<body>
+            <div id="video-section" class="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm space-y-3">
+                <h3 class="text-base font-bold text-emeraldCustom flex items-center gap-2">
+                    <span>🎬</span> Video Pembelajaran: “Awal Mulai Dakwah Sirriyah Makkah”
+                </h3>
+                <div class="aspect-video bg-emeraldCustom-dark/90 rounded-2xl flex flex-col items-center justify-center text-white p-6 text-center relative overflow-hidden border-2 border-goldCustom">
+                    <span class="text-5xl mb-2 cursor-pointer hover:scale-110 transition" onclick="playVideoPlaceholder()">▶️</span>
+                    <p class="font-bold text-goldCustom text-sm md:text-base">Media Pembelajaran SKI Kelas X MA</p>
+                    <p class="text-xs text-emerald-200 mt-1 max-w-md">Klik tombol play di atas untuk menyimak penjelasan naratif pergerakan dakwah sirriyah Rasulullah Saw.</p>
+                </div>
+            </div>
+<button onclick="window.location.href='../index.html'" class="bg-emerald-800 text-white px-4 py-2 rounded-xl text-sm">
+    ← Kembali ke Beranda
+</button>
+<script src="/assets/js/video.js"></script>
+<script src="/assets/js/index.js"></script>
+</body>
+</html>

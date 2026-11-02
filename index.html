@@ -518,11 +518,9 @@
                                 <p class="text-[10px] text-gray-500 font-bold mt-1">Animasi Sirriyah</p>
                             </div>
                         </div>
-                        <a href="/pages/video.html">
-                        <button class="mt-3 w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-xl text-xs font-bold transition">
+                        <button onclick="bukaHalamanVideo()"  class="mt-3 w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-xl text-xs font-bold transition">
                             Tonton Video
                         </button>
-                        </a>
                     </div>
                     <!-- Kartu Sedang 1: Video Pembelajaran -->
                     <div class="bento-card bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
@@ -987,12 +985,12 @@
 <script src="assets/js/kalender.js"></script>
 <script>
     function bukaHalamanVideo() {
-    // Opsional: Validasi apakah siswa sudah presensi
-    const statusPresensi = localStorage.getItem('ski_status_presensi');
-    if (!statusPresensi) {
-        alert('Mohon lakukan presensi terlebih dahulu sebelum mengakses materi/video!');
-        return;
-    }
+    // // Opsional: Validasi apakah siswa sudah presensi
+    // const statusPresensi = localStorage.getItem('ski_status_presensi');
+    // if (!statusPresensi) {
+    //     alert('Mohon lakukan presensi terlebih dahulu sebelum mengakses materi/video!');
+    //     return;
+    // }
     
     // Pindah ke file video.html di dalam folder pages
     window.location.href = 'pages/video.html';

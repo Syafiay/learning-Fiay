@@ -14,7 +14,7 @@
 
 const HERO_SLIDES = [
   {
-    image: "/assets/img/Fiay-img.png",
+    image: "./assets/img/Fiay-img.png",
     eyebrow: "Your Teacher",
     title: "Ahmad Syafi'i S.Pd"
   },

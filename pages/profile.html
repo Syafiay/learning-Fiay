@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emeraldCustom: {
+                            DEFAULT: '#0F5132',
+                            dark: '#0A3622',
+                            light: '#198754',
+                            subtle: '#D1E7DD'
+                        },
+                        goldCustom: {
+                            DEFAULT: '#D4AF37',
+                            hover: '#AA820A',
+                            light: '#FFF8DC'
+                        },
+                        creamCustom: '#FAF9F5'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #988c5a;
+            color: #212529;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+        .bento-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(15, 81, 50, 0.12);
+        }
+        .gold-border { border-color: #D4AF37; }
+        .tab-btn.active {
+            background-color: #D4AF37;
+            color: #0F5132;
+            font-weight: bold;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+        }
+        .accordion-content.active { max-height: 1000px; }
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .cert-border { border: 12px double #D4AF37; }
+        .pulse-active { animation: pulse-ring 2s infinite; }
+        .cert-border { border: 12px double #D4AF37; }
+    </style>
+
+</head>
+<body>
+    <!-- KOMPONEN: Profil Guru SKI & Sirah Nabawiyah -->
+<div class="max-w-6xl mx-auto p-4 md:p-6 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-900 rounded-3xl shadow-2xl border-2 border-amber-500/40 text-white overflow-hidden my-6">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- KOLOM KIRI: Foto & Sertifikat Mockup (4 Kolom) -->
+        <div class="lg:col-span-5 space-y-6">
+            
+            <!-- Kotak Foto Guru dengan Nuansa Masjid/Ka'bah -->
+            <div class="relative bg-black/40 p-4 rounded-2xl border border-amber-500/30 shadow-inner overflow-hidden text-center">
+                <div class="absolute inset-0 opacity-20 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1590073844006-33379778ae09?q=80&w=1000&auto=format&fit=crop');"></div>
+                <div class="relative z-10 flex flex-col items-center">
+                    <!-- Foto / Avatar Placeholder -->
+                    <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-amber-400 overflow-hidden shadow-lg bg-emerald-900 mb-3 flex items-center justify-center">
+                        <!-- <span class="text-6xl">👨‍🏫</span> -->
+                        <img src="/assets/img/Fiay-img.png" alt="Foto Guru" class="w-full h-full object-cover">
+                    </div>
+                    <span class="bg-amber-500 text-emerald-950 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow">Pendidik Tersertifikasi</span>
+                </div>
+            </div>
+
+            <!-- Kartu Sertifikat Elegan -->
+            <div class="bg-amber-50/95 text-stone-900 p-5 rounded-2xl border-4 border-amber-500/80 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 text-amber-200/50 text-8xl font-serif select-none pointer-events-none">📜</div>
+                
+                <div class="text-center space-y-2 border-b border-amber-300 pb-3 mb-3">
+                    <p class="text-[10px] uppercase tracking-widest text-emerald-800 font-bold">Ma'had Al-Sirah Al-Islamiyah & Tarikh Nabawi</p>
+                    <h4 class="font-serif font-bold text-xs text-amber-900">SERTIFIKAT PENDIDIK (SKI) & SIRAH NABAWIYAH</h4>
+                </div>
+                
+                <div class="text-center space-y-1 mb-4">
+                    <p class="text-[11px] text-gray-600 italic">Diberikan kepada:</p>
+                    <h3 class="font-serif font-bold text-base text-emerald-950 border-b border-amber-400/50 pb-1 inline-block px-4">Ustaz Ahmad Syafi'i SP.d</h3>
+                    <p class="text-[10px] text-gray-500 mt-1">Atas kompetensi dan dedikasi dalam pengajaran Sejarah Kebudayaan Islam.</p>
+                </div>
+
+                <div class="flex justify-between items-end text-[9px] text-gray-600 pt-2 border-t border-amber-200">
+                    <div class="text-center">
+                        <p class="font-serif italic font-bold">Ahmad F.</p>
+                        <p class="border-t border-gray-400 mt-0.5 pt-0.5">Tandatangan</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500 flex items-center justify-center text-amber-800 font-bold text-[8px]">
+                        SEAL
+                    </div>
+                    <div class="text-center">
+                        <p class="font-serif italic font-bold">Direktur Tarikh</p>
+                        <p class="border-t border-gray-400 mt-0.5 pt-0.5">Pengesahan</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- KOLOM KANAN: Informasi Profil & Deskripsi (7 Kolom) -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Judul & Identitas -->
+            <div class="border-b border-amber-500/30 pb-4 space-y-2">
+                <h2 class="text-xl md:text-2xl font-serif font-bold text-amber-400">Profil Guru Sejarah Kebudayaan Islam (SKI) & Sirah Nabawiyah</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-200 pt-1">
+                    <p><strong class="text-amber-300">Nama:</strong> Ustaz Ahmad Syafi'i SP.d</p>
+                    <p><strong class="text-amber-300">Profesi:</strong> Certified Islamic History Educator</p>
+                    <p class="sm:col-span-2"><strong class="text-amber-300">Bidang Keahlian:</strong> Sirah Nabawiyah Periode Makkah & Metodologi Dakwah Sirriyah</p>
+                </div>
+            </div>
+
+            <!-- Tentang Saya -->
+            <div class="space-y-3 text-xs md:text-sm text-gray-300 leading-relaxed">
+                <h3 class="font-bold text-amber-400 text-sm flex items-center gap-2">
+                    <span>📖</span> Tentang Saya
+                </h3>
+                <p>
+                    Saya adalah pendidik bersertifikat dalam Sejarah Kebudayaan Islam yang memiliki minat besar dalam sirah dan peradaban Islam awal. Saya berkomitmen penuh untuk membantu peserta didik memahami perjuangan dan kearifan dakwah Nabi Muhammad Saw. secara mendalam dan sistematis.
+                </p>
+                <p>
+                    Dalam proses pembelajaran, saya mengutamakan pemahaman sirah yang kuat, khususnya dalam periode Makkah. Saya berfokus pada pembinaan karakter dan akhlak mulia, serta menanamkan nilai-nilai tauhid dan kesetaraan manusia, sebagaimana dipraktikkan oleh para perintis Islam awal.
+                </p>
+                <p>
+                    Melalui pembelajaran yang terarah dan berorientasi pada keteladanan, saya berharap dapat membantu peserta didik membangun kepribadian Islami yang tangguh, memperkuat keimanan, serta meneladani semangat dakwah dalam kehidupan sehari-hari.
+                </p>
+            </div>
+
+            <!-- Filosofi Mengajar -->
+            <div class="bg-emerald-900/60 border-l-4 border-amber-400 p-4 rounded-r-xl space-y-1 shadow-md">
+                <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider">Filosofi Mengajar:</h4>
+                <p class="text-xs italic text-gray-200 font-serif">
+                    "Setiap pelajaran Sejarah Kebudayaan Islam adalah sarana untuk meneladani perjuangan dan kelembutan dakwah Rasulullah Saw." 🌙
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<button onclick="window.location.href='../index.html'" class="bg-emerald-800 text-white px-4 py-2 rounded-xl text-sm">
+    ← Kembali ke Beranda
+</button>
+</body>
+</html>

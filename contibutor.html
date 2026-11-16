@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri Guru</title>
+    <style>
+        /* ===== PENGATURAN MUDAH DIUBAH ===== */
+        :root {
+            --warna-latar: #988c5a;
+            --warna-badge: white;      /* latar keterangan (Guru SKI, Fotografer, dll) */
+            --warna-teks-badge: #022c22;
+            --warna-nama: #2eb9e7;
+            --ukuran-foto: 112px;        /* lebar & tinggi foto bulat */
+            --jarak-antar-foto: 24px;    /* <-- UBAH INI untuk jarak antar foto */
+            --jarak-foto-ke-badge: 12px;
+            --jarak-badge-ke-nama: 6px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: white;
+            color: #212529;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* Wadah semua orang: berderet ke samping, otomatis turun baris jika sempit */
+        .galeri {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: var(--jarak-antar-foto);
+            padding: 24px;
+        }
+
+        /* Satu orang = foto + keterangan + nama */
+        .orang {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 160px;                 /* lebar tiap kartu, atur sesuai selera */
+            text-align: center;
+        }
+
+        .foto {
+            width: var(--ukuran-foto);
+            height: var(--ukuran-foto);
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #60a5fa;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Keterangan peran, mis. "Fotografer" */
+        .peran {
+            display: inline-block;
+            margin-top: var(--jarak-foto-ke-badge);
+            background-color: var(--warna-badge);
+            color: var(--warna-teks-badge);
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Nama orang di bawah keterangan */
+        .nama {
+            margin-top: var(--jarak-badge-ke-nama);
+            font-family: Georgia, 'Times New Roman', serif;
+            font-weight: bold;
+            font-size: 12px;
+            line-height: 1.3;
+            color: var(--warna-nama);
+        }
+  hr {
+    border: none;
+    height: 2px;
+    background-color: #333;
+    width: 50%;
+    margin: 20px auto; /* Membuat garis berada di tengah */
+  }
+
+  h2{
+    text-align: center;
+    margin-top: 20px;
+  }
+    </style>
+</head>
+<body>
+<h2>TIM REDAKSI KEMAHASISWAAN UIN JAKARTA</h2>
+    <div class="galeri">
+
+        <!-- Salin blok <div class="orang"> ini untuk menambah orang -->
+        <div class="orang">
+            <div class="foto">
+                <img src="/assets/img/Fiay-img.png" alt="Foto Fiay">
+            </div>
+            <span class="peran">Reporter</span>
+            <h4 class="nama">Nakhla Isfina Siagian</h4>
+        </div>
+
+        <div class="orang">
+            <div class="foto">
+                <img src="/assets/img/Fiay-img.png" alt="Foto Guru SKI">
+            </div>
+            <span class="peran">Editorial</span>
+            <h4 class="nama">Arini Aisyah</h4>
+        </div>
+
+        <div class="orang">
+            <div class="foto">
+                <img src="/assets/img/Fiay-img.png" alt="Foto Pamong Tarikh">
+            </div>
+            <span class="peran">Fotografer</span>
+            <h4 class="nama">Andi Adrian</h4>
+        </div>
+        <div class="orang">
+            <div class="foto">
+                <img src="/assets/img/Fiay-img.png" alt="Foto Pamong Tarikh">
+            </div>
+            <span class="peran">Publisher</span>
+            <h4 class="nama">Ahmad Syafi'i</h4>
+        </div>
+    <hr style="width: 100%; margin: 24px 0; border: none; border-top: 1px solid #191eab; line-height: 20px;">
+
+    </div>
+
+</body>
+</html>
